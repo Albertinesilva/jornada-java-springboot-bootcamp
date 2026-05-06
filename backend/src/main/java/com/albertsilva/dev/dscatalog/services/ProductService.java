@@ -10,7 +10,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.albertsilva.dev.dscatalog.dto.category.response.CategoryResponse;
 import com.albertsilva.dev.dscatalog.dto.product.mapper.ProductMapper;
 import com.albertsilva.dev.dscatalog.dto.product.request.ProductCreateRequest;
 import com.albertsilva.dev.dscatalog.dto.product.request.ProductUpdateRequest;
