@@ -145,17 +145,15 @@ public class CategoryController {
       @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @GetMapping
-  public ResponseEntity<Page<CategoryResponse>> findAll(
-      @RequestParam(value = "page", defaultValue = "0") Integer page,
-      @RequestParam(value = "linesPerPage", defaultValue = "12") Integer linesPerPage,
-      @RequestParam(value = "direction", defaultValue = "ASC") String direction,
-      @RequestParam(value = "orderBy", defaultValue = "name") String orderBy) {
+  public ResponseEntity<Page<CategoryResponse>> findAll(@RequestParam(required = false) String name,
+      Pageable pageable) {
 
-    logger.debug("Buscando categorias paginadas - page: {}, size: {}, orderBy: {}, direction: {}",
-        page, linesPerPage, orderBy, direction);
-
-    Pageable pageable = PageRequest.of(page, linesPerPage, Direction.fromString(direction), orderBy);
-    Page<CategoryResponse> response = categoryService.findAllPaged(pageable);
+    logger.debug("Buscando categorias - name: {}, page: {}, size: {}, sort: {}",
+        name,
+        pageable.getPageNumber(),
+        pageable.getPageSize(),
+        pageable.getSort().isSorted() ? pageable.getSort() : "unsorted");
+    Page<CategoryResponse> response = categoryService.findAllPaged(name, pageable);
 
     logger.debug("Categorias retornadas: {}", response.getTotalElements());
     return ResponseEntity.ok(response);
@@ -182,39 +180,6 @@ public class CategoryController {
     CategoryResponse response = categoryService.findById(id);
 
     logger.debug("Categoria encontrada: id={}", id);
-    return ResponseEntity.ok(response);
-  }
-
-  /**
-   * Endpoint para busca de categorias por nome.
-   *
-   * <p>
-   * Realiza busca parcial (contém) e ignora maiúsculas/minúsculas.
-   * </p>
-   *
-   * <p>
-   * <b>Exemplo:</b>
-   * </p>
-   * 
-   * <pre>
-   * GET /api/v1/categories/search?name=eletron
-   * </pre>
-   *
-   * @param name     termo de busca
-   * @param pageable paginação automática do Spring
-   * @return lista paginada de categorias filtradas
-   */
-  @Operation(summary = "Busca categorias por nome", description = "Permite busca parcial de categorias pelo nome. Case insensitive.", responses = {
-      @ApiResponse(responseCode = "200", description = "Lista paginada de categorias filtradas", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CategoryResponse.class)))),
-      @ApiResponse(responseCode = "400", description = "Parâmetro de busca inválido", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
-  })
-  @GetMapping("/search")
-  public ResponseEntity<Page<CategoryResponse>> search(@RequestParam String name, Pageable pageable) {
-    logger.debug("Buscando categorias por nome: {}", name);
-
-    Page<CategoryResponse> response = categoryService.searchByName(name, pageable);
-
-    logger.debug("Categorias encontradas: {}", response.getTotalElements());
     return ResponseEntity.ok(response);
   }
 

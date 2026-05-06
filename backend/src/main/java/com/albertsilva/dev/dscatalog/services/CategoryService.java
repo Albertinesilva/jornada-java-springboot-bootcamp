@@ -69,13 +69,14 @@ public class CategoryService {
   }
 
   /**
-   * Retorna uma lista paginada de categorias.
+   * Retorna uma lista paginada de categorias, com opção de filtro por nome.
    *
    * <p>
    * Permite consultar categorias de forma escalável,
    * evitando carregamento excessivo de registros.
    * </p>
    *
+   * @param name     termo de busca (opcional)
    * @param pageable informações de paginação
    * @return página de {@link CategoryResponse}
    *
@@ -88,10 +89,19 @@ public class CategoryService {
    *          paginação, escalabilidade e otimização de consultas.
    */
   @Transactional(readOnly = true)
-  public Page<CategoryResponse> findAllPaged(Pageable pageable) {
-    logger.debug("Buscando categorias paginadas - page: {}, size: {}", pageable.getPageNumber(),
-        pageable.getPageSize());
-    return categoryMapper.toResponsePage(categoryRepository.findAll(pageable));
+  public Page<CategoryResponse> findAllPaged(String name, Pageable pageable) {
+    logger.debug("Buscando categorias paginadas. filtroNome: {}", name);
+
+    Page<Category> categories;
+
+    if (hasText(name)) {
+      categories = categoryRepository.findByNameContainingIgnoreCase(name.trim(), pageable);
+    } else {
+      categories = categoryRepository.findAll(pageable);
+    }
+
+    logger.debug("Total de categorias encontradas: {}", categories.getTotalElements());
+    return categoryMapper.toResponsePage(categories);
   }
 
   /**
@@ -270,38 +280,12 @@ public class CategoryService {
   }
 
   /**
-   * Realiza busca paginada de categorias por nome.
+   * Verifica se uma string possui texto (não é nula, vazia ou apenas espaços).
    *
-   * <p>
-   * Permite busca parcial e case insensitive,
-   * utilizando correspondência por conteúdo textual.
-   * </p>
-   *
-   * @param name     termo de busca
-   * @param pageable informações de paginação
-   * @return página de categorias encontradas
-   *
-   * @implNote
-   *           Utiliza consulta derivada do Spring Data JPA:
-   *           {@code findByNameContainingIgnoreCase}.
-   *
-   *           <p>
-   *           Essa abordagem reduz necessidade
-   *           de implementação manual de queries.
-   *           </p>
-   *
-   * @apiNote
-   *          Esta implementação reforça conceitos importantes como:
-   *          consultas derivadas, filtros dinâmicos,
-   *          paginação e busca textual eficiente.
+   * @param value string a ser verificada
+   * @return {@code true} se a string tiver texto, {@code false} caso contrário
    */
-  @Transactional(readOnly = true)
-  public Page<CategoryResponse> searchByName(String name, Pageable pageable) {
-    logger.debug("Buscando categorias por nome. termo: {}", name);
-
-    Page<Category> categories = categoryRepository.findByNameContainingIgnoreCase(name, pageable);
-
-    logger.debug("Resultado da busca por nome '{}' - total encontrados: {}", name, categories.getTotalElements());
-    return categoryMapper.toResponsePage(categories);
+  private boolean hasText(String value) {
+    return value != null && !value.trim().isEmpty();
   }
 }
