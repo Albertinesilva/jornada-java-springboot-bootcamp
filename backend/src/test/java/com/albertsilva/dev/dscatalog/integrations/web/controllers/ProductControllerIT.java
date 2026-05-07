@@ -65,11 +65,9 @@ class ProductControllerIT {
     @DisplayName("GET /products should return sorted paged products when sort by name")
     void findAllShouldReturnSortedPagedWhenSortByNameProducts() throws Exception {
 
-      // Act
       ResultActions resultActions = mockMvc
           .perform(get(BASE_URL + "?page=0&size=12&sort=name,asc").accept(MediaType.APPLICATION_JSON));
 
-      // Assert
       resultActions
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.content").isArray())
@@ -77,23 +75,20 @@ class ProductControllerIT {
           .andExpect(jsonPath("$.content[0].name").value("Macbook Pro"))
           .andExpect(jsonPath("$.content[1].name").value("PC Gamer"))
           .andExpect(jsonPath("$.content[2].name").value("PC Gamer Alfa"))
-          .andExpect(jsonPath("$.number").isNumber())
-          .andExpect(jsonPath("$.size").isNumber());
+          .andExpect(jsonPath("$.number").value(0))
+          .andExpect(jsonPath("$.size").value(12));
     }
 
     @Test
-    @DisplayName("GET /products with pagination parameters should return paged products")
+    @DisplayName("GET /products should return paged products")
     void findAllWithPaginationShouldReturnPagedProducts() throws Exception {
 
-      // Act
       ResultActions resultActions = mockMvc.perform(get(BASE_URL)
           .param("page", "0")
-          .param("linesPerPage", "20")
-          .param("direction", "ASC")
-          .param("orderBy", "name")
+          .param("size", "20")
+          .param("sort", "name,asc")
           .accept(MediaType.APPLICATION_JSON));
 
-      // Assert
       resultActions
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.content").isArray())
@@ -102,14 +97,25 @@ class ProductControllerIT {
     }
 
     @Test
+    @DisplayName("GET /products with name filter should return filtered products")
+    void findAllWithNameFilterShouldReturnFilteredProducts() throws Exception {
+
+      ResultActions resultActions = mockMvc.perform(get(BASE_URL)
+          .param("name", "pc")
+          .param("page", "0")
+          .param("size", "10")
+          .accept(MediaType.APPLICATION_JSON));
+
+      resultActions.andExpect(status().isOk()).andExpect(jsonPath("$.content").isArray());
+    }
+
+    @Test
     @DisplayName("GET /products/{id} should return product details when id exists")
     void findByIdShouldReturnProductDetailsWhenIdExists() throws Exception {
 
-      // Act
       ResultActions resultActions = mockMvc
           .perform(get(BASE_URL + "/{id}", EXISTING_ID).accept(MediaType.APPLICATION_JSON));
 
-      // Assert
       resultActions
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.id").value(EXISTING_ID))
@@ -122,11 +128,9 @@ class ProductControllerIT {
     @DisplayName("GET /products/{id} should return 404 when id does not exist")
     void findByIdShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
 
-      // Act
       ResultActions resultActions = mockMvc
           .perform(get(BASE_URL + "/{id}", NON_EXISTING_ID).accept(MediaType.APPLICATION_JSON));
 
-      // Assert
       resultActions.andExpect(status().isNotFound());
     }
   }

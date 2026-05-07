@@ -182,25 +182,70 @@ class ProductServiceTest {
   class FindAllPagedOperations {
 
     @Test
-    @DisplayName("findAllPaged should return paged products")
-    void findAllPagedShouldReturnPage() {
+    @DisplayName("findAllPaged should return page when name is empty")
+    void findAllPagedShouldReturnPageWhenNameIsEmpty() {
 
       // Arrange
+      String name = "";
       Page<ProductResponse> expectedPage = new PageImpl<>(List.of());
 
-      Mockito.when(repository.findAll(Mockito.any(Pageable.class))).thenReturn(page);
+      Mockito.when(repository.findAll(pageable)).thenReturn(page);
       Mockito.when(productMapper.toResponsePage(page)).thenReturn(expectedPage);
 
       // Act
-      Page<ProductResponse> result = service.findAllPaged(pageable);
+      Page<ProductResponse> result = service.findAllPaged(name, pageable);
 
       // Assert
       Assertions.assertNotNull(result);
       Assertions.assertEquals(expectedPage, result);
 
-      // Verify
       Mockito.verify(repository).findAll(pageable);
       Mockito.verify(productMapper).toResponsePage(page);
+    }
+
+    @Test
+    @DisplayName("findAllPaged should return filtered page when name exists")
+    void findAllPagedShouldReturnFilteredPageWhenNameExists() {
+
+      // Arrange
+      String name = "pc";
+      Page<ProductResponse> expectedPage = new PageImpl<>(List.of());
+
+      Mockito.when(repository.findByNameContainingIgnoreCase(name, pageable)).thenReturn(page);
+
+      Mockito.when(productMapper.toResponsePage(page)).thenReturn(expectedPage);
+
+      // Act
+      Page<ProductResponse> result = service.findAllPaged(name, pageable);
+
+      // Assert
+      Assertions.assertNotNull(result);
+      Assertions.assertEquals(expectedPage, result);
+
+      Mockito.verify(repository).findByNameContainingIgnoreCase(name, pageable);
+
+      Mockito.verify(productMapper).toResponsePage(page);
+    }
+
+    @Test
+    @DisplayName("findAllPaged should trim name before filtering")
+    void findAllPagedShouldTrimNameBeforeFiltering() {
+
+      // Arrange
+      String name = "  pc  ";
+      Page<ProductResponse> expectedPage = new PageImpl<>(List.of());
+
+      Mockito.when(repository.findByNameContainingIgnoreCase("pc", pageable)).thenReturn(page);
+
+      Mockito.when(productMapper.toResponsePage(page)).thenReturn(expectedPage);
+
+      // Act
+      Page<ProductResponse> result = service.findAllPaged(name, pageable);
+
+      // Assert
+      Assertions.assertNotNull(result);
+
+      Mockito.verify(repository).findByNameContainingIgnoreCase("pc", pageable);
     }
   }
 

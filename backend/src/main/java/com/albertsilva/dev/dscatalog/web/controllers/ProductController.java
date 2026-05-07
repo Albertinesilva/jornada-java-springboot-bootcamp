@@ -158,16 +158,19 @@ public class ProductController {
    * @param pageable configuração de paginação automática
    * @return lista paginada de produtos
    */
-  @Operation(summary = "Lista todos os produtos com paginação", description = "Exige Bearer Token. Acesso restrito a ADMIN.", security = @SecurityRequirement(name = "security"), responses = {
+  @Operation(summary = "Lista todos os produtos com paginação e filtragem", description = "Exige Bearer Token. Acesso restrito a ADMIN.", security = @SecurityRequirement(name = "security"), responses = {
       @ApiResponse(responseCode = "200", description = "Lista paginada de produtos", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = ProductResponse.class)))),
       @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @GetMapping
-  public ResponseEntity<Page<ProductResponse>> findAll(Pageable pageable) {
-    logger.debug("Buscando produtos paginados - page: {}, size: {}",
-        pageable.getPageNumber(), pageable.getPageSize());
+  public ResponseEntity<Page<ProductResponse>> findAll(@RequestParam(required = false) String name, Pageable pageable) {
+    logger.debug("Buscando produtos paginados - name: {}, page: {}, size: {}, sort: {}",
+        name,
+        pageable.getPageNumber(),
+        pageable.getPageSize(),
+        pageable.getSort().isSorted() ? pageable.getSort() : "unsorted");
 
-    Page<ProductResponse> response = productService.findAllPaged(pageable);
+    Page<ProductResponse> response = productService.findAllPaged(name, pageable);
 
     logger.debug("Produtos retornados: {}", response.getTotalElements());
     return ResponseEntity.ok(response);

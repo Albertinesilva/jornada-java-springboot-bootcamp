@@ -54,10 +54,11 @@ class ProductServiceIT {
       void findAllPagedShouldReturnPagedProductsWhenPage0Size10() {
 
         // Arrange
+        String name = "";
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // Act
-        Page<ProductResponse> result = service.findAllPaged(pageRequest);
+        Page<ProductResponse> result = service.findAllPaged(name, pageRequest);
 
         // Assert
         assertNotNull(result);
@@ -72,10 +73,11 @@ class ProductServiceIT {
       void findAllPagedShouldReturnEmptyPageWhenPageDoesNotExist() {
 
         // Arrange
+        String name = "";
         PageRequest pageRequest = PageRequest.of(50, 10);
 
         // Act
-        Page<ProductResponse> result = service.findAllPaged(pageRequest);
+        Page<ProductResponse> result = service.findAllPaged(name, pageRequest);
 
         // Assert
         assertNotNull(result);
@@ -90,10 +92,11 @@ class ProductServiceIT {
       void findAllPagedShouldReturnOrderedPageWhenSortingByName() {
 
         // Arrange
+        String name = "";
         PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("name"));
 
         // Act
-        Page<ProductResponse> result = service.findAllPaged(pageRequest);
+        Page<ProductResponse> result = service.findAllPaged(name, pageRequest);
 
         // Assert
         assertNotNull(result);
@@ -101,6 +104,24 @@ class ProductServiceIT {
         assertEquals("Macbook Pro", result.getContent().get(0).name());
         assertEquals("PC Gamer", result.getContent().get(1).name());
         assertEquals("PC Gamer Alfa", result.getContent().get(2).name());
+      }
+
+      @Test
+      @DisplayName("findAllPaged should return filtered products when name exists")
+      void findAllPagedShouldReturnFilteredProductsWhenNameExists() {
+
+        // Arrange
+        String name = "pc";
+        PageRequest pageRequest = PageRequest.of(0, 10);
+
+        // Act
+        Page<ProductResponse> result = service.findAllPaged(name, pageRequest);
+
+        // Assert
+        assertNotNull(result);
+        assertFalse(result.isEmpty());
+
+        result.getContent().forEach(product -> assertTrue(product.name().toLowerCase().contains(name)));
       }
     }
 

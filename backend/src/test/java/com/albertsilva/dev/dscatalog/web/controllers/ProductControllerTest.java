@@ -112,13 +112,10 @@ class ProductControllerTest {
     @DisplayName("Should return paged products")
     void findAllShouldReturnPage() throws Exception {
 
-      // Arrange
-      when(productService.findAllPaged(any(Pageable.class))).thenReturn(page);
+      when(productService.findAllPaged(any(), any(Pageable.class))).thenReturn(page);
 
-      // Act
       ResultActions resultActions = mockMvc.perform(get(BASE_URL).accept(MediaType.APPLICATION_JSON));
 
-      // Assert
       resultActions
           .andExpect(status().isOk())
           .andExpect(jsonPath("$.content").isArray())
@@ -128,7 +125,21 @@ class ProductControllerTest {
           .andExpect(jsonPath("$.size").value(10))
           .andExpect(jsonPath("$.number").value(0));
 
-      verify(productService).findAllPaged(any(Pageable.class));
+      verify(productService).findAllPaged(any(), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("Should return filtered paged products")
+    void findAllShouldReturnFilteredPage() throws Exception {
+
+      when(productService.findAllPaged(eq("pc"), any(Pageable.class))).thenReturn(page);
+
+      ResultActions resultActions = mockMvc
+          .perform(get(BASE_URL).param("name", "pc").accept(MediaType.APPLICATION_JSON));
+
+      resultActions.andExpect(status().isOk()).andExpect(jsonPath("$.content").isArray());
+
+      verify(productService).findAllPaged(eq("pc"), any(Pageable.class));
     }
   }
 
