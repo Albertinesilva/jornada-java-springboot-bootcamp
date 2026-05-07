@@ -96,11 +96,20 @@ public class ProductService {
    *          paginação, escalabilidade e otimização de consultas.
    */
   @Transactional(readOnly = true)
-  public Page<ProductResponse> findAllPaged(Pageable pageable) {
-    logger.debug("Buscando produtos paginados - page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
-    Page<Product> products = productRepository.findAll(pageable);
+  public Page<ProductResponse> findAllPaged(String name, Pageable pageable) {
+    logger.debug("Buscando produtos paginados. filtroNome: {}", name);
+
+    Page<Product> products;
+
+    if (hasText(name)) {
+      products = productRepository.findByNameContainingIgnoreCase(name.trim(), pageable);
+    } else {
+      products = productRepository.findAll(pageable);
+    }
+
     logger.debug("Total de produtos encontrados: {}", products.getTotalElements());
     return productMapper.toResponsePage(products);
+
   }
 
   /**
@@ -316,6 +325,16 @@ public class ProductService {
 
     logger.debug("Categorias mapeadas ao produto. produtoId: {}, total: {}",
         entity.getId(), categories.size());
+  }
+
+  /**
+   * Verifica se uma string possui texto (não é nula, vazia ou apenas espaços).
+   *
+   * @param value string a ser verificada
+   * @return {@code true} se a string tiver texto, {@code false} caso contrário
+   */
+  private boolean hasText(String value) {
+    return value != null && !value.trim().isEmpty();
   }
 
 }
