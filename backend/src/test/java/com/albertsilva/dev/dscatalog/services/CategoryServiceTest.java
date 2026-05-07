@@ -2,7 +2,9 @@ package com.albertsilva.dev.dscatalog.services;
 
 import static com.albertsilva.dev.dscatalog.factory.CategoryFactory.EXISTING_ID;
 import static com.albertsilva.dev.dscatalog.factory.CategoryFactory.NON_EXISTING_ID;
-
+import static com.albertsilva.dev.dscatalog.factory.CategoryFactory.COUNT_TOTAL_CATEGORIES;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,15 +46,6 @@ class CategoryServiceTest {
 
   @Mock
   private CategoryMapper categoryMapper;
-
-  private Pageable pageable;
-  private PageImpl<Category> page;
-
-  @BeforeEach
-  void setUp() {
-    pageable = PageRequest.of(0, 10);
-    page = new PageImpl<>(List.of(CategoryFactory.createCategory()));
-  }
 
   @Nested
   @DisplayName("Insert Operations")
@@ -129,47 +122,124 @@ class CategoryServiceTest {
   @DisplayName("FindAllPaged Operations")
   class FindAllPagedOperations {
 
+    private Pageable pageable;
+    private Page<Category> categoryPage;
+    private Page<CategoryResponse> responsePage;
+
+    @BeforeEach
+    void setUp() {
+
+      pageable = PageRequest.of(0, 10);
+
+      Category category = CategoryFactory.createCategory();
+      category.setId(EXISTING_ID);
+
+      CategoryResponse response = Mockito.mock(CategoryResponse.class);
+
+      List<Category> categoryList = List.of(category);
+      List<CategoryResponse> responseList = List.of(response);
+
+      categoryPage = new PageImpl<>(categoryList, pageable, COUNT_TOTAL_CATEGORIES);
+
+      responsePage = new PageImpl<>(responseList, pageable, COUNT_TOTAL_CATEGORIES);
+    }
+
     @Test
-    @DisplayName("findAllPaged should return paged categories")
-    void findAllPagedShouldReturnPagedCategories() {
+    @DisplayName("findAllPaged should return paged categories when filter is empty")
+    void findAllPagedShouldReturnPagedCategoriesWhenFilterIsEmpty() {
 
-      Page<CategoryResponse> expectedPage = new PageImpl<>(List.of());
+      String name = "";
 
-      Mockito.when(repository.findAll(pageable)).thenReturn(page);
-      Mockito.when(categoryMapper.toResponsePage(page)).thenReturn(expectedPage);
+      Mockito.when(repository.findAll(pageable)).thenReturn(categoryPage);
+      Mockito.when(categoryMapper.toResponsePage(categoryPage)).thenReturn(responsePage);
 
-      Page<CategoryResponse> result = service.findAllPaged(pageable);
+      Page<CategoryResponse> result = service.findAllPaged(name, pageable);
 
-      Assertions.assertNotNull(result);
-      Assertions.assertEquals(expectedPage, result);
+      assertNotNull(result);
+
+      assertEquals(COUNT_TOTAL_CATEGORIES, result.getTotalElements());
 
       Mockito.verify(repository).findAll(pageable);
-      Mockito.verify(categoryMapper).toResponsePage(page);
+      Mockito.verify(categoryMapper).toResponsePage(categoryPage);
     }
-  }
-
-  @Nested
-  @DisplayName("Search Operations")
-  class SearchOperations {
 
     @Test
-    @DisplayName("searchByName should return paged categories")
-    void searchByNameShouldReturnPagedCategories() {
+    @DisplayName("findAllPaged should return paged categories when filter is null")
+    void findAllPagedShouldReturnPagedCategoriesWhenFilterIsNull() {
 
-      String name = "Books";
+      Mockito.when(repository.findAll(pageable)).thenReturn(categoryPage);
+      Mockito.when(categoryMapper.toResponsePage(categoryPage)).thenReturn(responsePage);
 
-      Page<CategoryResponse> expectedPage = new PageImpl<>(List.of());
+      Page<CategoryResponse> result = service.findAllPaged(null, pageable);
 
-      Mockito.when(repository.findByNameContainingIgnoreCase(name, pageable)).thenReturn(page);
-      Mockito.when(categoryMapper.toResponsePage(page)).thenReturn(expectedPage);
+      assertNotNull(result);
 
-      Page<CategoryResponse> result = service.searchByName(name, pageable);
+      assertEquals(COUNT_TOTAL_CATEGORIES, result.getTotalElements());
 
-      Assertions.assertNotNull(result);
-      Assertions.assertEquals(expectedPage, result);
+      Mockito.verify(repository).findAll(pageable);
+      Mockito.verify(categoryMapper).toResponsePage(categoryPage);
+    }
+
+    @Test
+    @DisplayName("findAllPaged should return paged categories when filter is blank")
+    void findAllPagedShouldReturnPagedCategoriesWhenFilterIsBlank() {
+
+      String name = "   ";
+
+      Mockito.when(repository.findAll(pageable)).thenReturn(categoryPage);
+      Mockito.when(categoryMapper.toResponsePage(categoryPage)).thenReturn(responsePage);
+
+      Page<CategoryResponse> result = service.findAllPaged(name, pageable);
+
+      assertNotNull(result);
+
+      assertEquals(COUNT_TOTAL_CATEGORIES, result.getTotalElements());
+
+      Mockito.verify(repository).findAll(pageable);
+      Mockito.verify(categoryMapper).toResponsePage(categoryPage);
+    }
+
+    @Test
+    @DisplayName("findAllPaged should return filtered categories when name exists")
+    void findAllPagedShouldReturnFilteredCategoriesWhenNameExists() {
+
+      String name = "book";
+
+      Mockito.when(repository.findByNameContainingIgnoreCase(name, pageable)).thenReturn(categoryPage);
+
+      Mockito.when(categoryMapper.toResponsePage(categoryPage)).thenReturn(responsePage);
+
+      Page<CategoryResponse> result = service.findAllPaged(name, pageable);
+
+      assertNotNull(result);
+
+      assertEquals(COUNT_TOTAL_CATEGORIES, result.getTotalElements());
 
       Mockito.verify(repository).findByNameContainingIgnoreCase(name, pageable);
-      Mockito.verify(categoryMapper).toResponsePage(page);
+
+      Mockito.verify(categoryMapper).toResponsePage(categoryPage);
+    }
+
+    @Test
+    @DisplayName("findAllPaged should trim name before searching")
+    void findAllPagedShouldTrimNameBeforeSearching() {
+
+      String name = "   book   ";
+      String trimmedName = "book";
+
+      Mockito.when(repository.findByNameContainingIgnoreCase(trimmedName, pageable)).thenReturn(categoryPage);
+
+      Mockito.when(categoryMapper.toResponsePage(categoryPage)).thenReturn(responsePage);
+
+      Page<CategoryResponse> result = service.findAllPaged(name, pageable);
+
+      assertNotNull(result);
+
+      assertEquals(COUNT_TOTAL_CATEGORIES, result.getTotalElements());
+
+      Mockito.verify(repository).findByNameContainingIgnoreCase(trimmedName, pageable);
+
+      Mockito.verify(categoryMapper).toResponsePage(categoryPage);
     }
   }
 

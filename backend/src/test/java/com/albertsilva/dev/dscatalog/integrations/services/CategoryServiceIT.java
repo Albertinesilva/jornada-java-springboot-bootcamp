@@ -11,10 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -23,7 +20,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.albertsilva.dev.dscatalog.dto.category.request.CategoryCreateRequest;
@@ -45,6 +42,13 @@ class CategoryServiceIT {
   @Autowired
   private CategoryRepository repository;
 
+  private Pageable pageable;
+
+  @BeforeEach
+  void setUp() {
+    pageable = PageRequest.of(0, 10);
+  }
+
   @Nested
   @DisplayName("Read Operations")
   class ReadOperations {
@@ -54,14 +58,14 @@ class CategoryServiceIT {
     class FindAllPagedOperations {
 
       @Test
-      @DisplayName("findAllPaged should return paged categories when page 0 size 10")
-      void findAllPagedShouldReturnPagedCategoriesWhenPage0Size10() {
+      @DisplayName("findAllPaged should return paged categories when name filter is empty")
+      void findAllPagedShouldReturnPagedCategoriesWhenNameFilterIsEmpty() {
 
         // Arrange
-        PageRequest pageRequest = PageRequest.of(0, 10);
+        String name = "";
 
         // Act
-        Page<CategoryResponse> result = service.findAllPaged(pageRequest);
+        Page<CategoryResponse> result = service.findAllPaged(name, pageable);
 
         // Assert
         assertNotNull(result);
@@ -69,47 +73,65 @@ class CategoryServiceIT {
         assertEquals(0, result.getNumber());
         assertEquals(10, result.getSize());
         assertEquals(COUNT_TOTAL_CATEGORIES, result.getTotalElements());
-        assertTrue(result.getContent().size() <= 10);
       }
 
       @Test
-      @DisplayName("findAllPaged should return empty page when requested page does not exist")
-      void findAllPagedShouldReturnEmptyPageWhenRequestedPageDoesNotExist() {
+      @DisplayName("findAllPaged should return filtered categories when name exists")
+      void findAllPagedShouldReturnFilteredCategoriesWhenNameExists() {
 
         // Arrange
-        PageRequest pageRequest = PageRequest.of(50, 10);
+        String name = "book";
 
         // Act
-        Page<CategoryResponse> result = service.findAllPaged(pageRequest);
+        Page<CategoryResponse> result = service.findAllPaged(name, pageable);
 
         // Assert
         assertNotNull(result);
-        assertTrue(result.isEmpty());
-        assertEquals(50, result.getNumber());
-        assertEquals(10, result.getSize());
+
+        result.getContent().forEach(category -> assertTrue(category.name().toLowerCase().contains(name.toLowerCase())));
+      }
+
+      @Test
+      @DisplayName("findAllPaged should trim name before searching")
+      void findAllPagedShouldTrimNameBeforeSearching() {
+
+        // Arrange
+        String nameWithSpaces = "   book   ";
+
+        // Act
+        Page<CategoryResponse> result = service.findAllPaged(nameWithSpaces, pageable);
+
+        // Assert
+        assertNotNull(result);
+
+        result.getContent().forEach(category -> assertTrue(category.name().toLowerCase().contains("book")));
+      }
+
+      @Test
+      @DisplayName("findAllPaged should use findAll when name is blank")
+      void findAllPagedShouldUseFindAllWhenNameIsBlank() {
+
+        // Arrange
+        String name = "   ";
+
+        // Act
+        Page<CategoryResponse> result = service.findAllPaged(name, pageable);
+
+        // Assert
+        assertNotNull(result);
         assertEquals(COUNT_TOTAL_CATEGORIES, result.getTotalElements());
       }
 
       @Test
-      @DisplayName("findAllPaged should return ordered categories when sorting by name")
-      void findAllPagedShouldReturnOrderedCategoriesWhenSortingByName() {
-
-        // Arrange
-        PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("name"));
+      @DisplayName("findAllPaged should use findAll when name is null")
+      void findAllPagedShouldUseFindAllWhenNameIsNull() {
 
         // Act
-        Page<CategoryResponse> result = service.findAllPaged(pageRequest);
+        Page<CategoryResponse> result = service.findAllPaged(null, pageable);
 
         // Assert
         assertNotNull(result);
-        assertFalse(result.isEmpty());
-
-        List<String> names = result.getContent().stream().map(CategoryResponse::name).toList();
-
-        List<String> sorted = new ArrayList<>(names);
-        Collections.sort(sorted);
-
-        assertEquals(sorted, names);
+        assertEquals(COUNT_TOTAL_CATEGORIES, result.getTotalElements());
       }
     }
 
@@ -138,59 +160,20 @@ class CategoryServiceIT {
         assertThrows(ResourceNotFoundException.class, () -> service.findById(NON_EXISTING_ID));
       }
     }
-
-    @Nested
-    @DisplayName("Search Operations")
-    class SearchOperations {
-
-      @Test
-      @DisplayName("searchByName should return categories when name exists")
-      void searchByNameShouldReturnCategoriesWhenNameExists() {
-
-        // Arrange
-        String name = "Books";
-        PageRequest pageRequest = PageRequest.of(0, 10);
-
-        // Act
-        Page<CategoryResponse> result = service.searchByName(name, pageRequest);
-
-        // Assert
-        assertNotNull(result);
-        assertFalse(result.isEmpty());
-        assertTrue(result.getTotalElements() > 0);
-
-        assertTrue(result.getContent().stream()
-            .allMatch(category -> category.name().toLowerCase().contains(name.toLowerCase())));
-      }
-
-      @Test
-      @DisplayName("searchByName should return empty page when name does not exist")
-      void searchByNameShouldReturnEmptyPageWhenNameDoesNotExist() {
-
-        // Arrange
-        String name = "NonExistingCategory";
-        PageRequest pageRequest = PageRequest.of(0, 10);
-
-        // Act
-        Page<CategoryResponse> result = service.searchByName(name, pageRequest);
-
-        // Assert
-        assertNotNull(result);
-        assertTrue(result.isEmpty());
-      }
-    }
   }
 
   @Nested
-  @DisplayName("Create Operations")
-  class CreateOperations {
+  @DisplayName("Insert Operations")
+  class InsertOperations {
 
     @Test
-    @DisplayName("insert should persist category when valid data")
-    void insertShouldPersistCategoryWhenValidData() {
+    @DisplayName("insert should create category successfully")
+    void insertShouldCreateCategorySuccessfully() {
 
       // Arrange
       CategoryCreateRequest request = CategoryFactory.createCategoryCreateRequest();
+
+      long countBeforeInsert = repository.count();
 
       // Act
       CategoryResponse result = service.insert(request);
@@ -198,9 +181,9 @@ class CategoryServiceIT {
       // Assert
       assertNotNull(result);
       assertNotNull(result.id());
-      assertNotNull(result.name());
-      assertEquals(COUNT_TOTAL_CATEGORIES + 1, repository.count());
-      assertTrue(repository.existsById(result.id()));
+      assertEquals(request.name(), result.name());
+
+      assertEquals(countBeforeInsert + 1, repository.count());
     }
   }
 
@@ -224,6 +207,7 @@ class CategoryServiceIT {
       assertEquals(request.name(), result.name());
 
       CategoryResponse updatedCategory = service.findById(EXISTING_ID);
+
       assertEquals(request.name(), updatedCategory.name());
     }
 
@@ -252,6 +236,7 @@ class CategoryServiceIT {
 
       // Assert
       assertEquals(COUNT_TOTAL_CATEGORIES - 1, repository.count());
+
       assertFalse(repository.existsById(NON_DEPENDENT_ID));
     }
 

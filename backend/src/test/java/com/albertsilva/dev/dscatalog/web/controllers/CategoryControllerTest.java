@@ -4,6 +4,7 @@ import static com.albertsilva.dev.dscatalog.factory.CategoryFactory.EXISTING_ID;
 import static com.albertsilva.dev.dscatalog.factory.CategoryFactory.NON_EXISTING_ID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
@@ -110,11 +111,11 @@ class CategoryControllerTest {
   class FindAllTests {
 
     @Test
-    @DisplayName("Should return paged categories")
-    void findAllShouldReturnPage() throws Exception {
+    @DisplayName("Should return paged categories when name filter is not informed")
+    void findAllShouldReturnPageWhenNameFilterIsNotInformed() throws Exception {
 
       // Arrange
-      when(categoryService.findAllPaged(any(Pageable.class))).thenReturn(page);
+      when(categoryService.findAllPaged(isNull(), any(Pageable.class))).thenReturn(page);
 
       // Act
       ResultActions resultActions = mockMvc.perform(get(BASE_URL).accept(MediaType.APPLICATION_JSON));
@@ -127,7 +128,54 @@ class CategoryControllerTest {
           .andExpect(jsonPath("$.content[0].name").value(categoryResponse.name()))
           .andExpect(jsonPath("$.totalElements").value(1));
 
-      verify(categoryService).findAllPaged(any(Pageable.class));
+      verify(categoryService).findAllPaged(isNull(), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("Should return filtered categories when name filter is informed")
+    void findAllShouldReturnFilteredCategoriesWhenNameFilterIsInformed() throws Exception {
+
+      // Arrange
+      String name = "books";
+
+      when(categoryService.findAllPaged(eq(name), any(Pageable.class))).thenReturn(page);
+
+      // Act
+      ResultActions resultActions = mockMvc
+          .perform(get(BASE_URL).param("name", name).accept(MediaType.APPLICATION_JSON));
+
+      // Assert
+      resultActions
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.content").isArray())
+          .andExpect(jsonPath("$.content[0].id").value(EXISTING_ID))
+          .andExpect(jsonPath("$.content[0].name").value(categoryResponse.name()))
+          .andExpect(jsonPath("$.totalElements").value(1));
+
+      verify(categoryService).findAllPaged(eq(name), any(Pageable.class));
+    }
+
+    @Test
+    @DisplayName("Should return paged categories with pagination parameters")
+    void findAllShouldReturnPagedCategoriesWithPaginationParameters() throws Exception {
+
+      // Arrange
+      when(categoryService.findAllPaged(isNull(), any(Pageable.class))).thenReturn(page);
+
+      // Act
+      ResultActions resultActions = mockMvc.perform(get(BASE_URL)
+          .param("page", "0")
+          .param("size", "10")
+          .param("sort", "name,asc")
+          .accept(MediaType.APPLICATION_JSON));
+
+      // Assert
+      resultActions
+          .andExpect(status().isOk())
+          .andExpect(jsonPath("$.content").isArray())
+          .andExpect(jsonPath("$.totalElements").value(1));
+
+      verify(categoryService).findAllPaged(isNull(), any(Pageable.class));
     }
   }
 

@@ -68,21 +68,22 @@ class CategoryControllerIT {
       void findAllShouldReturnSortedPagedWhenSortByNameCategories() throws Exception {
 
         // Act
-        ResultActions resultActions = mockMvc
-            .perform(get(BASE_URL + "?page=0&size=12&sort=name,asc")
-                .accept(MediaType.APPLICATION_JSON));
+        ResultActions resultActions = mockMvc.perform(get(BASE_URL)
+            .param("page", "0")
+            .param("size", "12")
+            .param("sort", "name,asc")
+            .accept(MediaType.APPLICATION_JSON));
 
         // Assert
         resultActions
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").isArray())
-            .andExpect(jsonPath("$.totalElements").isNumber())
             .andExpect(jsonPath("$.totalElements").value(totalCategoriesCount))
             .andExpect(jsonPath("$.content[0].name").value("Automotive"))
             .andExpect(jsonPath("$.content[1].name").value("Beauty"))
             .andExpect(jsonPath("$.content[2].name").value("Books"))
-            .andExpect(jsonPath("$.number").isNumber())
-            .andExpect(jsonPath("$.size").isNumber());
+            .andExpect(jsonPath("$.number").value(0))
+            .andExpect(jsonPath("$.size").value(12));
       }
 
       @Test
@@ -92,9 +93,8 @@ class CategoryControllerIT {
         // Act
         ResultActions resultActions = mockMvc.perform(get(BASE_URL)
             .param("page", "0")
-            .param("linesPerPage", "10")
-            .param("direction", "ASC")
-            .param("orderBy", "name")
+            .param("size", "10")
+            .param("sort", "name,asc")
             .accept(MediaType.APPLICATION_JSON));
 
         // Assert
@@ -102,7 +102,26 @@ class CategoryControllerIT {
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content").isArray())
             .andExpect(jsonPath("$.number").value(0))
-            .andExpect(jsonPath("$.size").value(10));
+            .andExpect(jsonPath("$.size").value(10))
+            .andExpect(jsonPath("$.totalElements").value(totalCategoriesCount));
+      }
+
+      @Test
+      @DisplayName("GET /categories should return filtered categories when name parameter is informed")
+      void findAllShouldReturnFilteredCategoriesWhenNameParameterIsInformed() throws Exception {
+
+        // Act
+        ResultActions resultActions = mockMvc.perform(get(BASE_URL)
+            .param("name", "book")
+            .param("page", "0")
+            .param("size", "10")
+            .accept(MediaType.APPLICATION_JSON));
+
+        // Assert
+        resultActions
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content").isArray())
+            .andExpect(jsonPath("$.content[0].name").value("Books"));
       }
     }
 
@@ -138,41 +157,6 @@ class CategoryControllerIT {
       }
     }
 
-    @Nested
-    @DisplayName("Search Operations")
-    class SearchOperations {
-
-      @Test
-      @DisplayName("GET /categories/search?name=value should return filtered categories")
-      void searchByNameShouldReturnFilteredCategories() throws Exception {
-
-        // Act
-        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/search")
-            .param("name", "Eletrônicos")
-            .accept(MediaType.APPLICATION_JSON));
-
-        // Assert
-        resultActions
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content").isArray());
-      }
-
-      @Test
-      @DisplayName("GET /categories/search?name=value should return empty page when name does not exist")
-      void searchByNameShouldReturnEmptyPageWhenNameDoesNotExist() throws Exception {
-
-        // Act
-        ResultActions resultActions = mockMvc.perform(get(BASE_URL + "/search")
-            .param("name", "NonExistingCategoryXYZ")
-            .accept(MediaType.APPLICATION_JSON));
-
-        // Assert
-        resultActions
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.content").isArray())
-            .andExpect(jsonPath("$.totalElements").value(0));
-      }
-    }
   }
 
   @Nested
