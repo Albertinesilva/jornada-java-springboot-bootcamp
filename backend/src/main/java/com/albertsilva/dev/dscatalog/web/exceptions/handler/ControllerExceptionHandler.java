@@ -1,4 +1,4 @@
-package com.albertsilva.dev.dscatalog.web.exceptions.advice;
+package com.albertsilva.dev.dscatalog.web.exceptions.handler;
 
 import java.time.Instant;
 
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.albertsilva.dev.dscatalog.services.exceptions.DatabaseException;
 import com.albertsilva.dev.dscatalog.services.exceptions.ResourceNotFoundException;
 import com.albertsilva.dev.dscatalog.web.exceptions.enums.ErrorType;
+import com.albertsilva.dev.dscatalog.web.exceptions.response.ProblemDetails;
 
 import jakarta.servlet.http.HttpServletRequest;
 
