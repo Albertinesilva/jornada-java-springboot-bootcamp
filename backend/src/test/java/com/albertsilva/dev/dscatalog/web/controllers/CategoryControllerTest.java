@@ -47,7 +47,7 @@ import com.albertsilva.dev.dscatalog.dto.category.response.CategoryResponse;
 import com.albertsilva.dev.dscatalog.factory.CategoryFactory;
 import com.albertsilva.dev.dscatalog.services.CategoryService;
 import com.albertsilva.dev.dscatalog.services.exceptions.ResourceNotFoundException;
-import com.albertsilva.dev.dscatalog.web.exceptions.advice.ControllerExceptionHandler;
+import com.albertsilva.dev.dscatalog.web.exceptions.handler.ControllerExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(CategoryController.class)

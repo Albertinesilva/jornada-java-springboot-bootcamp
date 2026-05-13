@@ -14,7 +14,7 @@ import com.albertsilva.dev.dscatalog.dto.category.request.CategoryCreateRequest;
 import com.albertsilva.dev.dscatalog.dto.category.request.CategoryUpdateRequest;
 import com.albertsilva.dev.dscatalog.dto.category.response.CategoryResponse;
 import com.albertsilva.dev.dscatalog.services.CategoryService;
-import com.albertsilva.dev.dscatalog.web.exceptions.advice.ProblemDetails;
+import com.albertsilva.dev.dscatalog.web.exceptions.response.ProblemDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 /**
  * Controller responsável por expor os endpoints REST da entidade Category.
@@ -100,7 +101,7 @@ public class CategoryController {
       @ApiResponse(responseCode = "409", description = "Categoria já existente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @PostMapping
-  public ResponseEntity<CategoryResponse> insert(@RequestBody CategoryCreateRequest categoryCreateRequest) {
+  public ResponseEntity<CategoryResponse> insert(@Valid @RequestBody CategoryCreateRequest categoryCreateRequest) {
     logger.debug("Recebendo requisição para criar categoria: {}", categoryCreateRequest);
 
     CategoryResponse response = categoryService.insert(categoryCreateRequest);
@@ -207,7 +208,7 @@ public class CategoryController {
   })
   @PatchMapping(value = "/{id}")
   public ResponseEntity<CategoryResponse> update(@PathVariable Long id,
-      @RequestBody CategoryUpdateRequest categoryUpdateRequest) {
+      @Valid @RequestBody CategoryUpdateRequest categoryUpdateRequest) {
 
     logger.debug("Atualizando categoria id={} com dados: {}", id, categoryUpdateRequest);
 

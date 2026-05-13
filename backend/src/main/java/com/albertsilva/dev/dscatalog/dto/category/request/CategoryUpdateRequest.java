@@ -1,5 +1,8 @@
 package com.albertsilva.dev.dscatalog.dto.category.request;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 /**
  * DTO utilizado para requisições de atualização de categoria.
  *
@@ -20,5 +23,14 @@ package com.albertsilva.dev.dscatalog.dto.category.request;
  * @param description nova descrição da categoria
  * @param active      novo status da categoria
  */
-public record CategoryUpdateRequest(String name, String description, Boolean active) {
+public record CategoryUpdateRequest(
+
+    @NotBlank(message = "O nome da categoria é obrigatório") 
+    @Size(min = 3, max = 80, message = "O nome da categoria deve ter entre 3 e 80 caracteres") 
+    String name,
+
+    @Size(min = 3, max = 255, message = "A descrição deve ter entre 3 e 255 caracteres") 
+    String description,
+
+    Boolean active) {
 }

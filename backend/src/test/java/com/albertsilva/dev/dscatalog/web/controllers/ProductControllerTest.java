@@ -41,7 +41,7 @@ import com.albertsilva.dev.dscatalog.dto.product.response.ProductResponse;
 import com.albertsilva.dev.dscatalog.factory.ProductFactory;
 import com.albertsilva.dev.dscatalog.services.ProductService;
 import com.albertsilva.dev.dscatalog.services.exceptions.ResourceNotFoundException;
-import com.albertsilva.dev.dscatalog.web.exceptions.advice.ControllerExceptionHandler;
+import com.albertsilva.dev.dscatalog.web.exceptions.handler.ControllerExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @WebMvcTest(ProductController.class)

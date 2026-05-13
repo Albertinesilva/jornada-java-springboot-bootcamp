@@ -1,4 +1,4 @@
-package com.albertsilva.dev.dscatalog.web.exceptions.advice;
+package com.albertsilva.dev.dscatalog.web.exceptions.handler;
 
 import java.time.Instant;
 
@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
@@ -14,6 +15,8 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import com.albertsilva.dev.dscatalog.services.exceptions.DatabaseException;
 import com.albertsilva.dev.dscatalog.services.exceptions.ResourceNotFoundException;
 import com.albertsilva.dev.dscatalog.web.exceptions.enums.ErrorType;
+import com.albertsilva.dev.dscatalog.web.exceptions.response.ProblemDetails;
+import com.albertsilva.dev.dscatalog.web.exceptions.response.ValidationError;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -189,11 +192,19 @@ public class ControllerExceptionHandler {
   @ExceptionHandler(NoResourceFoundException.class)
   public ResponseEntity<ProblemDetails> handleNoResourceFound(NoResourceFoundException e, HttpServletRequest request) {
     HttpStatus status = HttpStatus.NOT_FOUND;
-    logger.debug("Static resource not found - path: {}",
-        request.getRequestURI());
+    logger.debug("Static resource not found - path: {}", request.getRequestURI());
     ProblemDetails err = new ProblemDetails(Instant.now(), status.value(),
         "Resource not found",
         "Static resource not found", request.getRequestURI());
+    return ResponseEntity.status(status).body(err);
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  public ResponseEntity<ProblemDetails> validation(MethodArgumentNotValidException e, HttpServletRequest request) {
+    HttpStatus status = HttpStatus.UNPROCESSABLE_ENTITY;
+    ValidationError err = new ValidationError(Instant.now(), status.value(), "Validation Error",
+        "One or more fields are invalid", request.getRequestURI());
+    e.getBindingResult().getFieldErrors().forEach(f -> err.addError(f.getField(), f.getDefaultMessage()));
     return ResponseEntity.status(status).body(err);
   }
 

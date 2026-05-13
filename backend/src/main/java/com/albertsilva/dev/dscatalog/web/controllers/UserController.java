@@ -15,7 +15,7 @@ import com.albertsilva.dev.dscatalog.dto.user.request.UserUpdateRequest;
 import com.albertsilva.dev.dscatalog.dto.user.response.UserDetailsResponse;
 import com.albertsilva.dev.dscatalog.dto.user.response.UserResponse;
 import com.albertsilva.dev.dscatalog.services.UserService;
-import com.albertsilva.dev.dscatalog.web.exceptions.advice.ProblemDetails;
+import com.albertsilva.dev.dscatalog.web.exceptions.response.ProblemDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
