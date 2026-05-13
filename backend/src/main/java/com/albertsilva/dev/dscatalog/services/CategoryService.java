@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.albertsilva.dev.dscatalog.dto.category.mapper.CategoryMapper;
 import com.albertsilva.dev.dscatalog.dto.category.request.CategoryCreateRequest;
@@ -67,39 +68,46 @@ public class CategoryService {
   }
 
   /**
-   * Retorna uma lista paginada de categorias, com opção de filtro por nome.
+   * Busca categorias com suporte a filtragem por nome e paginação.
    *
    * <p>
-   * Permite consultar categorias de forma escalável,
-   * evitando carregamento excessivo de registros.
+   * Permite buscar categorias cujo nome contenha o termo fornecido,
+   * ignorando diferenças de maiúsculas/minúsculas.
    * </p>
    *
-   * @param name     termo de busca (opcional)
-   * @param pageable informações de paginação
-   * @return página de {@link CategoryResponse}
+   * <p>
+   * Se o parâmetro {@code name} for nulo ou vazio, retorna todas as categorias
+   * paginadas.
+   * </p>
+   *
+   * @param name     termo de busca para o nome da categoria (opcional)
+   * @param pageable informações de paginação e ordenação
+   * @return página de categorias que correspondem ao critério de busca
    *
    * @implNote
-   *           Utiliza paginação nativa do Spring Data JPA,
-   *           reduzindo consumo de memória e melhorando performance.
+   *           Utiliza métodos específicos do repositório para otimizar a busca
+   *           com filtro, evitando carregamento desnecessário de dados.
    *
    * @apiNote
    *          Esta implementação reforça conceitos importantes como:
-   *          paginação, escalabilidade e otimização de consultas.
+   *          filtragem eficiente, paginação, uso de Optional e boas práticas de
+   *          consulta em Spring Data JPA.
    */
   @Transactional(readOnly = true)
-  public Page<CategoryResponse> findAllPaged(String name, Pageable pageable) {
-    logger.debug("Buscando categorias paginadas. filtroNome: {}", name);
+  public Page<CategoryResponse> search(String name, Pageable pageable) {
 
-    Page<Category> categories;
+    String filter = StringUtils.hasText(name) ? name.trim() : null;
 
-    if (hasText(name)) {
-      categories = categoryRepository.findByNameContainingIgnoreCase(name.trim(), pageable);
-    } else {
-      categories = categoryRepository.findAll(pageable);
-    }
+    logger.debug("Buscando categorias | filtro={} | page={} | size={} | sort={}", filter, pageable.getPageNumber(),
+        pageable.getPageSize(), pageable.getSort());
 
-    logger.debug("Total de categorias encontradas: {}", categories.getTotalElements());
-    return categoryMapper.toResponsePage(categories);
+    Page<Category> categoriesPage = (filter != null)
+        ? categoryRepository.findByNameContainingIgnoreCase(filter, pageable)
+        : categoryRepository.findAll(pageable);
+
+    logger.debug("Busca concluída | total={}", categoriesPage.getTotalElements());
+
+    return categoryMapper.toResponsePage(categoriesPage);
   }
 
   /**
@@ -124,16 +132,7 @@ public class CategoryService {
    */
   @Transactional(readOnly = true)
   public CategoryResponse findById(Long id) {
-    logger.debug("Buscando categoria por id: {}", id);
-
-    Category entity = categoryRepository.findById(id)
-        .orElseThrow(() -> {
-          logger.warn("Categoria não encontrada. id: {}", id);
-          return new ResourceNotFoundException("Entity not found id: " + id);
-        });
-
-    logger.debug("Categoria encontrada. id: {}", id);
-    return categoryMapper.toResponse(entity);
+    return categoryMapper.toResponse(findEntityById(id));
   }
 
   /**
@@ -156,12 +155,11 @@ public class CategoryService {
    *          DTO Pattern, persistência e criação de entidades em APIs RESTful.
    */
   @Transactional
-  public CategoryResponse insert(CategoryCreateRequest categoryCreateRequest) {
+  public CategoryResponse create(CategoryCreateRequest categoryCreateRequest) {
     logger.debug("Inserindo nova categoria - dados: {}", categoryCreateRequest);
-
     Category entity = categoryMapper.toEntity(categoryCreateRequest);
+    entity.setActive(true);
     entity = categoryRepository.save(entity);
-
     logger.info("Categoria criada com sucesso. id: {}", entity.getId());
     return categoryMapper.toResponse(entity);
   }
@@ -205,9 +203,58 @@ public class CategoryService {
       return categoryMapper.toResponse(entity);
 
     } catch (EntityNotFoundException e) {
-      logger.warn("Falha ao atualizar. Categoria não encontrada. id: {}", id);
+      logger.warn("Falha ao atualizar categoria. Categoria não encontrada. id: {}", id);
       throw new ResourceNotFoundException("Entity not found id: " + id);
     }
+  }
+
+  /**
+   * Ativa uma categoria existente.
+   *
+   * <p>
+   * Altera o status da categoria para ativo,
+   * permitindo que ela seja exibida e utilizada.
+   * </p>
+   *
+   * @param id identificador da categoria
+   * @throws ResourceNotFoundException caso a categoria não exista
+   *
+   * @implNote
+   *           Realiza atualização parcial do status da categoria,
+   *           mantendo as demais informações inalteradas.
+   *
+   * @apiNote
+   *          Esta implementação reforça conceitos importantes como:
+   *          atualização parcial, status de entidade e regras de negócio.
+   */
+  @Transactional
+  public void activate(Long id) {
+    changeStatus(id, true);
+  }
+
+  /*
+   * Desativa uma categoria existente.
+   *
+   * <p>
+   * Altera o status da categoria para inativo,
+   * ocultando-a de listagens e impedindo sua utilização.
+   * </p>
+   *
+   * @param id identificador da categoria
+   * 
+   * @throws ResourceNotFoundException caso a categoria não exista
+   *
+   * @implNote
+   * Realiza atualização parcial do status da categoria,
+   * mantendo as demais informações inalteradas.
+   *
+   * @apiNote
+   * Esta implementação reforça conceitos importantes como:
+   * atualização parcial, status de entidade e regras de negócio.
+   */
+  @Transactional
+  public void deactivate(Long id) {
+    changeStatus(id, false);
   }
 
   /**
@@ -267,23 +314,63 @@ public class CategoryService {
   public void delete(Long id) {
     logger.debug("Deletando categoria. id: {}", id);
 
-    Category entity = categoryRepository.findById(id)
-        .orElseThrow(() -> {
-          logger.warn("Falha ao deletar. Categoria não encontrada. id: {}", id);
-          return new ResourceNotFoundException("Entity not found id: " + id);
-        });
-
+    Category entity = findEntityById(id);
     categoryRepository.delete(entity);
     logger.info("Categoria deletada com sucesso. id: {}", id);
   }
 
   /**
-   * Verifica se uma string possui texto (não é nula, vazia ou apenas espaços).
+   * Busca uma entidade {@link Category} por ID.
    *
-   * @param value string a ser verificada
-   * @return {@code true} se a string tiver texto, {@code false} caso contrário
+   * <p>
+   * Realiza consulta imediata e lança exceção caso não encontre a entidade.
+   * </p>
+   *
+   * @param id identificador da categoria
+   * @return entidade encontrada
+   * @throws ResourceNotFoundException caso a categoria não exista
    */
-  private boolean hasText(String value) {
-    return value != null && !value.trim().isEmpty();
+  private Category findEntityById(Long id) {
+    logger.debug("Buscando categoria por id: {}", id);
+
+    return categoryRepository.findById(id).orElseThrow(() -> {
+      logger.warn("Categoria não encontrada. id: {}", id);
+      return new ResourceNotFoundException("Entity not found id: " + id);
+    });
   }
+
+  /**
+   * Altera o status de uma categoria para ativo ou inativo.
+   *
+   * <p>
+   * Realiza a mudança de status da categoria, ativando ou desativando-a
+   * conforme o parâmetro fornecido.
+   * </p>
+   *
+   * @param id     identificador da categoria
+   * @param active novo status da categoria (true para ativo, false para inativo)
+   * @throws ResourceNotFoundException caso a categoria não exista
+   *
+   * @implNote
+   *           Centraliza a lógica de alteração de status em um método privado,
+   *           evitando duplicação de código entre os métodos de ativação e
+   *           desativação.
+   *
+   * @apiNote
+   *          Esta implementação reforça conceitos importantes como:
+   *          centralização de lógica, DRY Principle e manutenção facilitada.
+   */
+  private void changeStatus(Long id, boolean active) {
+    Category entity = findEntityById(id);
+
+    if (entity.isActive() == active) {
+      logger.debug("Status já definido | id={} | active={}", id, active);
+      return;
+    }
+
+    entity.setActive(active);
+
+    logger.info("Status alterado | id={} | active={}", id, active);
+  }
+
 }

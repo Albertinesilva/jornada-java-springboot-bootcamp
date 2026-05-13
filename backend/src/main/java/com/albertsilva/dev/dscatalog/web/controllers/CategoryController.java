@@ -7,7 +7,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.albertsilva.dev.dscatalog.dto.category.request.CategoryCreateRequest;
@@ -23,6 +31,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 /**
  * Controller responsável por expor os endpoints REST da entidade Category.
@@ -100,16 +109,12 @@ public class CategoryController {
       @ApiResponse(responseCode = "409", description = "Categoria já existente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @PostMapping
-  public ResponseEntity<CategoryResponse> insert(@RequestBody CategoryCreateRequest categoryCreateRequest) {
+  public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryCreateRequest categoryCreateRequest) {
     logger.debug("Recebendo requisição para criar categoria: {}", categoryCreateRequest);
 
-    CategoryResponse response = categoryService.insert(categoryCreateRequest);
+    CategoryResponse response = categoryService.create(categoryCreateRequest);
 
-    URI uri = ServletUriComponentsBuilder
-        .fromCurrentRequest()
-        .path("/{id}")
-        .buildAndExpand(response.id())
-        .toUri();
+    URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
 
     logger.info("Categoria criada com sucesso. id: {}", response.id());
     return ResponseEntity.created(uri).body(response);
@@ -138,7 +143,7 @@ public class CategoryController {
    *
    * @return lista paginada de categorias
    */
-  @Operation(summary = "Lista todas as categorias com paginação", description = "Exige Bearer Token. Acesso restrito a ADMIN.", security = @SecurityRequirement(name = "security"), responses = {
+  @Operation(summary = "Lista todas as categorias com paginação e filtro por nome", description = "Exige Bearer Token. Acesso restrito a ADMIN.", security = @SecurityRequirement(name = "security"), responses = {
       @ApiResponse(responseCode = "200", description = "Lista paginada de categorias", content = @Content(mediaType = "application/json", array = @ArraySchema(schema = @Schema(implementation = CategoryResponse.class)))),
       @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
@@ -146,12 +151,10 @@ public class CategoryController {
   public ResponseEntity<Page<CategoryResponse>> findAll(@RequestParam(required = false) String name,
       Pageable pageable) {
 
-    logger.debug("Buscando categorias - name: {}, page: {}, size: {}, sort: {}",
-        name,
-        pageable.getPageNumber(),
+    logger.debug("Buscando categorias - name: {}, page: {}, size: {}, sort: {}", name, pageable.getPageNumber(),
         pageable.getPageSize(),
         pageable.getSort().isSorted() ? pageable.getSort() : "unsorted");
-    Page<CategoryResponse> response = categoryService.findAllPaged(name, pageable);
+    Page<CategoryResponse> response = categoryService.search(name, pageable);
 
     logger.debug("Categorias retornadas: {}", response.getTotalElements());
     return ResponseEntity.ok(response);
@@ -207,7 +210,7 @@ public class CategoryController {
   })
   @PatchMapping(value = "/{id}")
   public ResponseEntity<CategoryResponse> update(@PathVariable Long id,
-      @RequestBody CategoryUpdateRequest categoryUpdateRequest) {
+      @Valid @RequestBody CategoryUpdateRequest categoryUpdateRequest) {
 
     logger.debug("Atualizando categoria id={} com dados: {}", id, categoryUpdateRequest);
 
@@ -215,6 +218,58 @@ public class CategoryController {
 
     logger.info("Categoria atualizada com sucesso. id={}", id);
     return ResponseEntity.ok(response);
+  }
+
+  /**
+   * Endpoint para ativação de uma categoria.
+   *
+   * <p>
+   * Altera o status da categoria para ativo, permitindo sua exibição
+   * e utilização no sistema.
+   * </p>
+   *
+   * @param id identificador da categoria
+   * @return resposta sem conteúdo
+   */
+  @Operation(summary = "Ativa uma categoria", description = "Altera o status da categoria para ativo.", responses = {
+      @ApiResponse(responseCode = "204", description = "Categoria ativada com sucesso"),
+      @ApiResponse(responseCode = "404", description = "Categoria não encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
+  })
+  @PatchMapping("/{id}/activate")
+  public ResponseEntity<Void> activate(@PathVariable Long id) {
+
+    logger.debug("Ativando categoria id={}", id);
+
+    categoryService.activate(id);
+
+    logger.info("Categoria ativada com sucesso. id={}", id);
+    return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * Endpoint para desativação de uma categoria.
+   *
+   * <p>
+   * Altera o status da categoria para inativo, ocultando-a das listagens
+   * e impedindo sua utilização no sistema.
+   * </p>
+   *
+   * @param id identificador da categoria
+   * @return resposta sem conteúdo
+   */
+  @Operation(summary = "Desativa uma categoria", description = "Altera o status da categoria para inativo.", responses = {
+      @ApiResponse(responseCode = "204", description = "Categoria desativada com sucesso"),
+      @ApiResponse(responseCode = "404", description = "Categoria não encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
+  })
+  @PatchMapping("/{id}/deactivate")
+  public ResponseEntity<Void> deactivate(@PathVariable Long id) {
+
+    logger.debug("Desativando categoria id={}", id);
+
+    categoryService.deactivate(id);
+
+    logger.info("Categoria desativada com sucesso. id={}", id);
+    return ResponseEntity.noContent().build();
   }
 
   /**
@@ -229,7 +284,7 @@ public class CategoryController {
    * </p>
    * <ul>
    * <li>404 → categoria não encontrada</li>
-   * <li>400 → violação de integridade</li>
+   * <li>409 → violação de integridade</li>
    * </ul>
    *
    * @param id identificador da categoria
@@ -238,7 +293,7 @@ public class CategoryController {
   @Operation(summary = "Remove uma categoria", description = "Exclui uma categoria pelo ID. Retorna erro se houver integridade referencial.", responses = {
       @ApiResponse(responseCode = "204", description = "Categoria deletada com sucesso"),
       @ApiResponse(responseCode = "404", description = "Categoria não encontrada", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class))),
-      @ApiResponse(responseCode = "400", description = "Violação de integridade - existem entidades relacionadas", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
+      @ApiResponse(responseCode = "409", description = "Violação de integridade - existem entidades relacionadas", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @DeleteMapping(value = "/{id}")
   public ResponseEntity<Void> delete(@PathVariable Long id) {

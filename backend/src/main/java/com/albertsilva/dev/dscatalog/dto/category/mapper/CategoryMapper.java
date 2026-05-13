@@ -39,8 +39,6 @@ public class CategoryMapper {
    * <ul>
    * <li>Cria uma nova instância de {@link Category}</li>
    * <li>Mapeia os campos básicos (nome e descrição)</li>
-   * <li>Define o campo {@code active} com valor padrão {@code false} caso não
-   * seja informado</li>
    * </ul>
    *
    * @param request dados recebidos na requisição de criação
@@ -55,9 +53,6 @@ public class CategoryMapper {
     Category entity = new Category();
     entity.setName(request.name());
     entity.setDescription(request.description());
-
-    // trata null → default false
-    entity.setActive(request.active() != null ? request.active() : false);
 
     return entity;
   }
@@ -91,10 +86,6 @@ public class CategoryMapper {
       entity.setDescription(request.description());
     }
 
-    // só atualiza se vier no request
-    if (request.active() != null) {
-      entity.setActive(request.active());
-    }
   }
 
   /**
