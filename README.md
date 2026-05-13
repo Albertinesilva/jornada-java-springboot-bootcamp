@@ -1,4 +1,4 @@
-# 🚀 DevSuperior Bootcamp — Java + Spring Boot
+# 🚀 Jornada de Desenvolvimento Backend — Java + Spring Boot
 
 <p style="text-align: justify;">
 <em>Este repositório documenta minha jornada de estudos no <code>Bootcamp DevSuperior (Spring Boot 3.0)</code> e <code>Java Spring Expert</code>, com foco na construção de aplicações backend robustas utilizando o ecossistema Java.
