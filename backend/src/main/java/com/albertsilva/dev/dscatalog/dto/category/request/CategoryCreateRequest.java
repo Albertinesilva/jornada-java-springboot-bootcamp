@@ -31,9 +31,7 @@ public record CategoryCreateRequest(
         String name,
 
         @Pattern(regexp = "^$|^.{3,255}$", message = "A descrição deve ter entre 3 e 255 caracteres")
-        String description,
-
-        Boolean active
+        String description
 
 ) {
 }

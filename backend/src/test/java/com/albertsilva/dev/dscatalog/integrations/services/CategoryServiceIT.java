@@ -65,7 +65,7 @@ class CategoryServiceIT {
         String name = "";
 
         // Act
-        Page<CategoryResponse> result = service.findAllPaged(name, pageable);
+        Page<CategoryResponse> result = service.search(name, pageable);
 
         // Assert
         assertNotNull(result);
@@ -83,7 +83,7 @@ class CategoryServiceIT {
         String name = "book";
 
         // Act
-        Page<CategoryResponse> result = service.findAllPaged(name, pageable);
+        Page<CategoryResponse> result = service.search(name, pageable);
 
         // Assert
         assertNotNull(result);
@@ -99,7 +99,7 @@ class CategoryServiceIT {
         String nameWithSpaces = "   book   ";
 
         // Act
-        Page<CategoryResponse> result = service.findAllPaged(nameWithSpaces, pageable);
+        Page<CategoryResponse> result = service.search(nameWithSpaces, pageable);
 
         // Assert
         assertNotNull(result);
@@ -115,7 +115,7 @@ class CategoryServiceIT {
         String name = "   ";
 
         // Act
-        Page<CategoryResponse> result = service.findAllPaged(name, pageable);
+        Page<CategoryResponse> result = service.search(name, pageable);
 
         // Assert
         assertNotNull(result);
@@ -127,7 +127,7 @@ class CategoryServiceIT {
       void findAllPagedShouldUseFindAllWhenNameIsNull() {
 
         // Act
-        Page<CategoryResponse> result = service.findAllPaged(null, pageable);
+        Page<CategoryResponse> result = service.search(null, pageable);
 
         // Assert
         assertNotNull(result);
@@ -176,7 +176,7 @@ class CategoryServiceIT {
       long countBeforeInsert = repository.count();
 
       // Act
-      CategoryResponse result = service.insert(request);
+      CategoryResponse result = service.create(request);
 
       // Assert
       assertNotNull(result);

@@ -56,9 +56,6 @@ public class CategoryMapper {
     entity.setName(request.name());
     entity.setDescription(request.description());
 
-    // trata null → default false
-    entity.setActive(request.active() != null ? request.active() : false);
-
     return entity;
   }
 
@@ -89,11 +86,6 @@ public class CategoryMapper {
 
     if (request.description() != null) {
       entity.setDescription(request.description());
-    }
-
-    // só atualiza se vier no request
-    if (request.active() != null) {
-      entity.setActive(request.active());
     }
   }
 

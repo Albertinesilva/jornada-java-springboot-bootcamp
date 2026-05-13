@@ -235,42 +235,6 @@ public class ProductService {
   }
 
   /**
-   * Remove um produto existente do sistema.
-   *
-   * <p>
-   * Valida previamente a existência da entidade
-   * antes da exclusão.
-   * </p>
-   *
-   * @param id identificador do produto
-   * @throws ResourceNotFoundException caso o produto não exista
-   * @throws DatabaseException         em caso de violação de integridade
-   *
-   * @implNote
-   *           Garante segurança ao validar existência antes do delete
-   *           e trata exceções de integridade referencial.
-   *
-   * @apiNote
-   *          Esta implementação reforça conceitos importantes como:
-   *          exclusão segura, integridade de dados e tratamento de exceções.
-   */
-  @Transactional
-  public void delete(Long id) {
-    logger.debug("Deletando produto. id: {}", id);
-
-    Product entity = findEntityById(id);
-
-    try {
-      productRepository.delete(entity);
-      logger.info("Produto deletado com sucesso. id: {}", id);
-
-    } catch (DataIntegrityViolationException e) {
-      logger.error("Erro de integridade ao deletar produto. id: {}", id);
-      throw new DatabaseException("Integrity violation: cannot delete product with related entities");
-    }
-  }
-
-  /**
    * Ativa um produto existente.
    *
    * <p>
@@ -316,6 +280,42 @@ public class ProductService {
   @Transactional
   public void deactivate(Long id) {
     changeStatus(id, false);
+  }
+
+  /**
+   * Remove um produto existente do sistema.
+   *
+   * <p>
+   * Valida previamente a existência da entidade
+   * antes da exclusão.
+   * </p>
+   *
+   * @param id identificador do produto
+   * @throws ResourceNotFoundException caso o produto não exista
+   * @throws DatabaseException         em caso de violação de integridade
+   *
+   * @implNote
+   *           Garante segurança ao validar existência antes do delete
+   *           e trata exceções de integridade referencial.
+   *
+   * @apiNote
+   *          Esta implementação reforça conceitos importantes como:
+   *          exclusão segura, integridade de dados e tratamento de exceções.
+   */
+  @Transactional
+  public void delete(Long id) {
+    logger.debug("Deletando produto. id: {}", id);
+
+    Product entity = findEntityById(id);
+
+    try {
+      productRepository.delete(entity);
+      logger.info("Produto deletado com sucesso. id: {}", id);
+
+    } catch (DataIntegrityViolationException e) {
+      logger.error("Erro de integridade ao deletar produto. id: {}", id);
+      throw new DatabaseException("Integrity violation: cannot delete product with related entities");
+    }
   }
 
   /**

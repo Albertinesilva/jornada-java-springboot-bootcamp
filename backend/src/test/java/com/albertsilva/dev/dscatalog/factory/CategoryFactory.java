@@ -25,12 +25,12 @@ public class CategoryFactory {
 
   public static CategoryCreateRequest createCategoryCreateRequest() {
     return new CategoryCreateRequest("Eletrodomésticos",
-        "Produtos eletrodomésticos, como geladeiras, fogões e máquinas de lavar.", true);
+        "Produtos eletrodomésticos, como geladeiras, fogões e máquinas de lavar.");
   }
 
   public static CategoryUpdateRequest createCategoryUpdateRequest() {
     return new CategoryUpdateRequest("Eletrodomésticos Atualizados",
-        "Produtos eletrodomésticos atualizados, como geladeiras, fogões e máquinas de lavar.", true);
+        "Produtos eletrodomésticos atualizados, como geladeiras, fogões e máquinas de lavar.");
   }
 
   public static CategoryResponse createUpdatedCategoryResponse() {

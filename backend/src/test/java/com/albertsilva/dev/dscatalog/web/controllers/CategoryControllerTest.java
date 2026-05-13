@@ -87,7 +87,7 @@ class CategoryControllerTest {
       CategoryCreateRequest request = CategoryFactory.createCategoryCreateRequest();
       String jsonRequest = asJson(request);
 
-      when(categoryService.insert(any(CategoryCreateRequest.class))).thenReturn(categoryResponse);
+      when(categoryService.create(any(CategoryCreateRequest.class))).thenReturn(categoryResponse);
 
       // Act
       ResultActions resultActions = mockMvc.perform(post(BASE_URL)
@@ -102,7 +102,7 @@ class CategoryControllerTest {
           .andExpect(jsonPath("$.id").value(categoryResponse.id()))
           .andExpect(jsonPath("$.name").value(categoryResponse.name()));
 
-      verify(categoryService).insert(any(CategoryCreateRequest.class));
+      verify(categoryService).create(any(CategoryCreateRequest.class));
     }
   }
 
@@ -115,7 +115,7 @@ class CategoryControllerTest {
     void findAllShouldReturnPageWhenNameFilterIsNotInformed() throws Exception {
 
       // Arrange
-      when(categoryService.findAllPaged(isNull(), any(Pageable.class))).thenReturn(page);
+      when(categoryService.search(isNull(), any(Pageable.class))).thenReturn(page);
 
       // Act
       ResultActions resultActions = mockMvc.perform(get(BASE_URL).accept(MediaType.APPLICATION_JSON));
@@ -128,7 +128,7 @@ class CategoryControllerTest {
           .andExpect(jsonPath("$.content[0].name").value(categoryResponse.name()))
           .andExpect(jsonPath("$.totalElements").value(1));
 
-      verify(categoryService).findAllPaged(isNull(), any(Pageable.class));
+      verify(categoryService).search(isNull(), any(Pageable.class));
     }
 
     @Test
@@ -138,7 +138,7 @@ class CategoryControllerTest {
       // Arrange
       String name = "books";
 
-      when(categoryService.findAllPaged(eq(name), any(Pageable.class))).thenReturn(page);
+      when(categoryService.search(eq(name), any(Pageable.class))).thenReturn(page);
 
       // Act
       ResultActions resultActions = mockMvc
@@ -152,7 +152,7 @@ class CategoryControllerTest {
           .andExpect(jsonPath("$.content[0].name").value(categoryResponse.name()))
           .andExpect(jsonPath("$.totalElements").value(1));
 
-      verify(categoryService).findAllPaged(eq(name), any(Pageable.class));
+      verify(categoryService).search(eq(name), any(Pageable.class));
     }
 
     @Test
@@ -160,7 +160,7 @@ class CategoryControllerTest {
     void findAllShouldReturnPagedCategoriesWithPaginationParameters() throws Exception {
 
       // Arrange
-      when(categoryService.findAllPaged(isNull(), any(Pageable.class))).thenReturn(page);
+      when(categoryService.search(isNull(), any(Pageable.class))).thenReturn(page);
 
       // Act
       ResultActions resultActions = mockMvc.perform(get(BASE_URL)
@@ -175,7 +175,7 @@ class CategoryControllerTest {
           .andExpect(jsonPath("$.content").isArray())
           .andExpect(jsonPath("$.totalElements").value(1));
 
-      verify(categoryService).findAllPaged(isNull(), any(Pageable.class));
+      verify(categoryService).search(isNull(), any(Pageable.class));
     }
   }
 

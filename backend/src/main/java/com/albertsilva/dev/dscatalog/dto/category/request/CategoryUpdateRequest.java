@@ -30,7 +30,6 @@ public record CategoryUpdateRequest(
     String name,
 
     @Size(min = 3, max = 255, message = "A descrição deve ter entre 3 e 255 caracteres") 
-    String description,
-
-    Boolean active) {
+    String description
+) {
 }

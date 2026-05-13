@@ -66,7 +66,7 @@ class CategoryServiceTest {
       Mockito.when(repository.save(category)).thenReturn(category);
       Mockito.when(categoryMapper.toResponse(category)).thenReturn(expectedResponse);
 
-      CategoryResponse result = service.insert(request);
+      CategoryResponse result = service.create(request);
 
       Assertions.assertNotNull(result);
       Assertions.assertEquals(expectedResponse, result);
@@ -119,8 +119,8 @@ class CategoryServiceTest {
   }
 
   @Nested
-  @DisplayName("FindAllPaged Operations")
-  class FindAllPagedOperations {
+  @DisplayName("Search Operations")
+  class SearchOperations {
 
     private Pageable pageable;
     private Page<Category> categoryPage;
@@ -145,15 +145,15 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("findAllPaged should return paged categories when filter is empty")
-    void findAllPagedShouldReturnPagedCategoriesWhenFilterIsEmpty() {
+    @DisplayName("search should return paged categories when filter is empty")
+    void searchShouldReturnPagedCategoriesWhenFilterIsEmpty() {
 
       String name = "";
 
       Mockito.when(repository.findAll(pageable)).thenReturn(categoryPage);
       Mockito.when(categoryMapper.toResponsePage(categoryPage)).thenReturn(responsePage);
 
-      Page<CategoryResponse> result = service.findAllPaged(name, pageable);
+      Page<CategoryResponse> result = service.search(name, pageable);
 
       assertNotNull(result);
 
@@ -164,13 +164,13 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("findAllPaged should return paged categories when filter is null")
-    void findAllPagedShouldReturnPagedCategoriesWhenFilterIsNull() {
+    @DisplayName("search should return paged categories when filter is null")
+    void searchShouldReturnPagedCategoriesWhenFilterIsNull() {
 
       Mockito.when(repository.findAll(pageable)).thenReturn(categoryPage);
       Mockito.when(categoryMapper.toResponsePage(categoryPage)).thenReturn(responsePage);
 
-      Page<CategoryResponse> result = service.findAllPaged(null, pageable);
+      Page<CategoryResponse> result = service.search(null, pageable);
 
       assertNotNull(result);
 
@@ -181,15 +181,15 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("findAllPaged should return paged categories when filter is blank")
-    void findAllPagedShouldReturnPagedCategoriesWhenFilterIsBlank() {
+    @DisplayName("search should return paged categories when filter is blank")
+    void searchShouldReturnPagedCategoriesWhenFilterIsBlank() {
 
       String name = "   ";
 
       Mockito.when(repository.findAll(pageable)).thenReturn(categoryPage);
       Mockito.when(categoryMapper.toResponsePage(categoryPage)).thenReturn(responsePage);
 
-      Page<CategoryResponse> result = service.findAllPaged(name, pageable);
+      Page<CategoryResponse> result = service.search(name, pageable);
 
       assertNotNull(result);
 
@@ -200,8 +200,8 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("findAllPaged should return filtered categories when name exists")
-    void findAllPagedShouldReturnFilteredCategoriesWhenNameExists() {
+    @DisplayName("search should return filtered categories when name exists")
+    void searchShouldReturnFilteredCategoriesWhenNameExists() {
 
       String name = "book";
 
@@ -209,7 +209,7 @@ class CategoryServiceTest {
 
       Mockito.when(categoryMapper.toResponsePage(categoryPage)).thenReturn(responsePage);
 
-      Page<CategoryResponse> result = service.findAllPaged(name, pageable);
+      Page<CategoryResponse> result = service.search(name, pageable);
 
       assertNotNull(result);
 
@@ -221,8 +221,8 @@ class CategoryServiceTest {
     }
 
     @Test
-    @DisplayName("findAllPaged should trim name before searching")
-    void findAllPagedShouldTrimNameBeforeSearching() {
+    @DisplayName("search should trim name before searching")
+    void searchShouldTrimNameBeforeSearching() {
 
       String name = "   book   ";
       String trimmedName = "book";
@@ -231,7 +231,7 @@ class CategoryServiceTest {
 
       Mockito.when(categoryMapper.toResponsePage(categoryPage)).thenReturn(responsePage);
 
-      Page<CategoryResponse> result = service.findAllPaged(name, pageable);
+      Page<CategoryResponse> result = service.search(name, pageable);
 
       assertNotNull(result);
 
