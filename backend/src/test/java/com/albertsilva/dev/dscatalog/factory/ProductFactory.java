@@ -35,23 +35,18 @@ public class ProductFactory {
   }
 
   public static ProductUpdateRequest createProductUpdateRequest() {
-    return new ProductUpdateRequest("Updated Smart TV", "TV 50 polegadas atualizada", true, 2799.0,
-        "https://img.com/updated-tv.png",
-        Instant.parse("2026-01-10T10:00:00Z"),
-        List.of());
+    return new ProductUpdateRequest("Updated Smart TV", "TV 50 polegadas atualizada", 2799.0,
+        "https://img.com/updated-tv.png", Instant.parse("2026-01-10T10:00:00Z"), List.of());
   }
 
   public static ProductResponse createUpdatedProductResponse() {
     return new ProductResponse(1L, "Updated Smart TV", "TV 50 polegadas atualizada", 2799.0,
-        "https://img.com/updated-tv.png",
-        Instant.parse("2026-01-10T10:00:00Z"),
-        List.of());
+        "https://img.com/updated-tv.png", Instant.parse("2026-01-10T10:00:00Z"), List.of());
   }
 
   public static ProductCreateRequest createProductCreateRequest() {
-    return new ProductCreateRequest("New Smart TV", "TV 50 polegadas nova", true, 1999.0, "https://img.com/new-tv.png",
-        Instant.parse("2026-01-10T10:00:00Z"),
-        List.of());
+    return new ProductCreateRequest("New Smart TV", "TV 50 polegadas nova", 1999.0, "https://img.com/new-tv.png",
+        Instant.parse("2026-01-10T10:00:00Z"), List.of());
   }
 
 }

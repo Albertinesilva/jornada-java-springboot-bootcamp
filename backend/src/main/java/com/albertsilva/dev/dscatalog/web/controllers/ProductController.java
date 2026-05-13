@@ -7,7 +7,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.albertsilva.dev.dscatalog.dto.product.request.ProductCreateRequest;
@@ -119,15 +127,12 @@ public class ProductController {
       @ApiResponse(responseCode = "409", description = "Produto já existente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @PostMapping
-  public ResponseEntity<ProductResponse> insert(@RequestBody ProductCreateRequest productCreateRequest) {
+  public ResponseEntity<ProductResponse> create(@RequestBody ProductCreateRequest productCreateRequest) {
     logger.debug("Recebendo requisição para criar produto: {}", productCreateRequest);
 
-    ProductResponse productResponse = productService.insert(productCreateRequest);
+    ProductResponse productResponse = productService.create(productCreateRequest);
 
-    URI uri = ServletUriComponentsBuilder
-        .fromCurrentRequest()
-        .path("/{id}")
-        .buildAndExpand(productResponse.id())
+    URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(productResponse.id())
         .toUri();
 
     logger.info("Produto criado com sucesso. id={}", productResponse.id());
@@ -170,7 +175,7 @@ public class ProductController {
         pageable.getPageSize(),
         pageable.getSort().isSorted() ? pageable.getSort() : "unsorted");
 
-    Page<ProductResponse> response = productService.findAllPaged(name, pageable);
+    Page<ProductResponse> response = productService.search(name, pageable);
 
     logger.debug("Produtos retornados: {}", response.getTotalElements());
     return ResponseEntity.ok(response);
@@ -251,8 +256,78 @@ public class ProductController {
 
     ProductResponse response = productService.update(id, productUpdateRequest);
 
-    logger.info("Controller Produto atualizado com sucesso. id={}", id);
+    logger.info("Produto atualizado com sucesso. id={}", id);
     return ResponseEntity.ok(response);
+  }
+
+  /**
+   * Endpoint para ativação de um produto.
+   *
+   * <p>
+   * Altera o status do produto para ativo, permitindo sua exibição
+   * e comercialização no sistema.
+   * </p>
+   *
+   * <p>
+   * <b>Respostas possíveis:</b>
+   * </p>
+   * <ul>
+   * <li>204 → produto ativado com sucesso</li>
+   * <li>404 → produto não encontrado</li>
+   * </ul>
+   *
+   * @param id identificador do produto
+   * @return resposta sem conteúdo
+   */
+  @Operation(summary = "Ativa um produto", description = "Altera o status do produto para ativo.", responses = {
+      @ApiResponse(responseCode = "204", description = "Produto ativado com sucesso"),
+      @ApiResponse(responseCode = "404", description = "Produto não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
+  })
+  @PatchMapping("/{id}/activate")
+  public ResponseEntity<Void> activate(@PathVariable Long id) {
+
+    logger.debug("Ativando produto id={}", id);
+
+    productService.activate(id);
+
+    logger.info("Produto ativado com sucesso. id={}", id);
+
+    return ResponseEntity.noContent().build();
+  }
+
+  /**
+   * Endpoint para desativação de um produto.
+   *
+   * <p>
+   * Altera o status do produto para inativo, ocultando-o das listagens
+   * e impedindo sua comercialização no sistema.
+   * </p>
+   *
+   * <p>
+   * <b>Respostas possíveis:</b>
+   * </p>
+   * <ul>
+   * <li>204 → produto desativado com sucesso</li>
+   * <li>404 → produto não encontrado</li>
+   * </ul>
+   *
+   * @param id identificador do produto
+   * @return resposta sem conteúdo
+   */
+  @Operation(summary = "Desativa um produto", description = "Altera o status do produto para inativo.", responses = {
+      @ApiResponse(responseCode = "204", description = "Produto desativado com sucesso"),
+      @ApiResponse(responseCode = "404", description = "Produto não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
+  })
+  @PatchMapping("/{id}/deactivate")
+  public ResponseEntity<Void> deactivate(@PathVariable Long id) {
+
+    logger.debug("Desativando produto id={}", id);
+
+    productService.deactivate(id);
+
+    logger.info("Produto desativado com sucesso. id={}", id);
+
+    return ResponseEntity.noContent().build();
   }
 
   /**

@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.albertsilva.dev.dscatalog.dto.product.mapper.ProductMapper;
 import com.albertsilva.dev.dscatalog.dto.product.request.ProductCreateRequest;
@@ -77,39 +78,45 @@ public class ProductService {
   }
 
   /**
-   * Retorna uma lista paginada de produtos.
+   * Busca produtos com suporte a filtragem por nome e paginação.
    *
    * <p>
-   * Permite consultar produtos de forma escalável,
-   * evitando carregamento excessivo de registros.
+   * Permite buscar produtos cujo nome contenha o termo fornecido,
+   * ignorando diferenças de maiúsculas/minúsculas.
    * </p>
    *
-   * @param pageable informações de paginação
-   * @return página de {@link ProductResponse}
+   * <p>
+   * Se o parâmetro {@code name} for nulo ou vazio, retorna todos os produtos
+   * paginados.
+   * </p>
+   *
+   * @param name     termo de busca para o nome do produto (opcional)
+   * @param pageable informações de paginação e ordenação
+   * @return página de produtos que correspondem ao critério de busca
    *
    * @implNote
-   *           Utiliza paginação nativa do Spring Data JPA,
-   *           melhorando performance e reduzindo consumo de memória.
+   *           Utiliza métodos específicos do repositório para otimizar a busca
+   *           com filtro, evitando carregamento desnecessário de dados.
    *
    * @apiNote
    *          Esta implementação reforça conceitos importantes como:
-   *          paginação, escalabilidade e otimização de consultas.
+   *          filtragem eficiente, paginação, uso de Optional e boas práticas de
+   *          consulta em Spring Data JPA.
    */
   @Transactional(readOnly = true)
-  public Page<ProductResponse> findAllPaged(String name, Pageable pageable) {
-    logger.debug("Buscando produtos paginados. filtroNome: {}", name);
+  public Page<ProductResponse> search(String name, Pageable pageable) {
 
-    Page<Product> products;
+    String filter = StringUtils.hasText(name) ? name.trim() : null;
 
-    if (hasText(name)) {
-      products = productRepository.findByNameContainingIgnoreCase(name.trim(), pageable);
-    } else {
-      products = productRepository.findAll(pageable);
-    }
+    logger.debug("Buscando produtos | filtro={} | page={} | size={} | sort={}", filter, pageable.getPageNumber(),
+        pageable.getPageSize(), pageable.getSort());
 
-    logger.debug("Total de produtos encontrados: {}", products.getTotalElements());
-    return productMapper.toResponsePage(products);
+    Page<Product> productsPage = (filter != null) ? productRepository.findByNameContainingIgnoreCase(filter, pageable)
+        : productRepository.findAll(pageable);
 
+    logger.debug("Busca concluída | total={}", productsPage.getTotalElements());
+
+    return productMapper.toResponsePage(productsPage);
   }
 
   /**
@@ -134,14 +141,7 @@ public class ProductService {
    */
   @Transactional(readOnly = true)
   public ProductDetailsResponse findById(Long id) {
-    logger.debug("Buscando produto por id: {}", id);
-    Product entity = productRepository.findById(id)
-        .orElseThrow(() -> {
-          logger.warn("Produto não encontrado. id: {}", id);
-          return new ResourceNotFoundException("Entity not found id: " + id);
-        });
-    logger.debug("Produto encontrado. id: {}", id);
-    return productMapper.toDetailsResponse(entity);
+    return productMapper.toDetailsResponse(findEntityById(id));
   }
 
   /**
@@ -169,10 +169,11 @@ public class ProductService {
    *          DTO Pattern, relacionamento ManyToMany e persistência.
    */
   @Transactional
-  public ProductResponse insert(ProductCreateRequest productCreateRequest) {
+  public ProductResponse create(ProductCreateRequest productCreateRequest) {
     logger.debug("Inserindo novo produto - dados: {}", productCreateRequest);
     Product entity = productMapper.toEntity(productCreateRequest);
-    mapCategories(entity, productCreateRequest.categoryIds());
+    entity.setActive(true);
+    syncCategories(entity, productCreateRequest.categoryIds());
     entity = productRepository.save(entity);
     logger.info("Produto criado com sucesso. id: {}", entity.getId());
     return productMapper.toResponse(entity);
@@ -219,7 +220,7 @@ public class ProductService {
       productMapper.updateEntity(dto, entity);
 
       if (dto.categoryIds() != null) {
-        mapCategories(entity, dto.categoryIds());
+        syncCategories(entity, dto.categoryIds());
         logger.debug("Categorias do produto atualizadas. id: {}", id);
       }
 
@@ -231,6 +232,54 @@ public class ProductService {
       logger.warn("Falha ao atualizar produto. Produto não encontrado. id: {}", id);
       throw new ResourceNotFoundException("Entity not found id: " + id);
     }
+  }
+
+  /**
+   * Ativa um produto existente.
+   *
+   * <p>
+   * Altera o status do produto para ativo,
+   * permitindo que ele seja exibido e comercializado.
+   * </p>
+   *
+   * @param id identificador do produto
+   * @throws ResourceNotFoundException caso o produto não exista
+   *
+   * @implNote
+   *           Realiza atualização parcial do status do produto,
+   *           mantendo as demais informações inalteradas.
+   *
+   * @apiNote
+   *          Esta implementação reforça conceitos importantes como:
+   *          atualização parcial, status de entidade e regras de negócio.
+   */
+  @Transactional
+  public void activate(Long id) {
+    changeStatus(id, true);
+  }
+
+  /**
+   * Desativa um produto existente.
+   *
+   * <p>
+   * Altera o status do produto para inativo,
+   * ocultando-o de listagens e impedindo comercialização.
+   * </p>
+   *
+   * @param id identificador do produto
+   * @throws ResourceNotFoundException caso o produto não exista
+   *
+   * @implNote
+   *           Realiza atualização parcial do status do produto,
+   *           mantendo as demais informações inalteradas.
+   *
+   * @apiNote
+   *          Esta implementação reforça conceitos importantes como:
+   *          atualização parcial, status de entidade e regras de negócio.
+   */
+  @Transactional
+  public void deactivate(Long id) {
+    changeStatus(id, false);
   }
 
   /**
@@ -257,11 +306,7 @@ public class ProductService {
   public void delete(Long id) {
     logger.debug("Deletando produto. id: {}", id);
 
-    Product entity = productRepository.findById(id)
-        .orElseThrow(() -> {
-          logger.warn("Falha ao deletar. Produto não encontrado. id: {}", id);
-          return new ResourceNotFoundException("Entity not found id: " + id);
-        });
+    Product entity = findEntityById(id);
 
     try {
       productRepository.delete(entity);
@@ -271,6 +316,26 @@ public class ProductService {
       logger.error("Erro de integridade ao deletar produto. id: {}", id);
       throw new DatabaseException("Integrity violation: cannot delete product with related entities");
     }
+  }
+
+  /**
+   * Busca uma entidade {@link Product} por ID.
+   *
+   * <p>
+   * Realiza consulta imediata e lança exceção caso não encontre a entidade.
+   * </p>
+   *
+   * @param id identificador do produto
+   * @return entidade encontrada
+   * @throws ResourceNotFoundException caso o produto não exista
+   */
+  private Product findEntityById(Long id) {
+    logger.debug("Buscando produto por id: {}", id);
+
+    return productRepository.findById(id).orElseThrow(() -> {
+      logger.warn("Produto não encontrado. id: {}", id);
+      return new ResourceNotFoundException("Entity not found id: " + id);
+    });
   }
 
   /**
@@ -304,37 +369,58 @@ public class ProductService {
    *          mapeamento de relacionamentos em JPA, performance JPA, N+1 queries e
    *          relacionamentos eficientes.
    */
-  private void mapCategories(Product entity, List<Long> categoryIds) {
+  private void syncCategories(Product entity, List<Long> categoryIds) {
     entity.getCategories().clear();
 
     if (categoryIds == null || categoryIds.isEmpty()) {
-      logger.debug("Nenhuma categoria fornecida para mapear ao produto. id: {}",
-          entity.getId());
+      logger.debug("Nenhuma categoria fornecida para mapear ao produto. id: {}", entity.getId());
       return;
     }
 
     List<Category> categories = categoryRepository.findAllById(categoryIds);
 
     if (categories.size() != categoryIds.size()) {
-      logger.warn("Uma ou mais categorias não foram encontradas. produtoId: {}",
-          entity.getId());
+      logger.warn("Uma ou mais categorias não foram encontradas. produtoId: {}", entity.getId());
       throw new ResourceNotFoundException("One or more categories not found");
     }
 
     entity.getCategories().addAll(categories);
 
-    logger.debug("Categorias mapeadas ao produto. produtoId: {}, total: {}",
-        entity.getId(), categories.size());
+    logger.debug("Categorias mapeadas ao produto. produtoId: {}, total: {}", entity.getId(), categories.size());
   }
 
   /**
-   * Verifica se uma string possui texto (não é nula, vazia ou apenas espaços).
+   * Altera o status de um produto para ativo ou inativo.
    *
-   * @param value string a ser verificada
-   * @return {@code true} se a string tiver texto, {@code false} caso contrário
+   * <p>
+   * Realiza a mudança de status do produto, ativando ou desativando-o
+   * conforme o parâmetro fornecido.
+   * </p>
+   *
+   * @param id     identificador do produto
+   * @param active novo status do produto (true para ativo, false para inativo)
+   * @throws ResourceNotFoundException caso o produto não exista
+   *
+   * @implNote
+   *           Centraliza a lógica de alteração de status em um método privado,
+   *           evitando duplicação de código entre os métodos de ativação e
+   *           desativação.
+   *
+   * @apiNote
+   *          Esta implementação reforça conceitos importantes como:
+   *          centralização de lógica, DRY Principle e manutenção facilitada.
    */
-  private boolean hasText(String value) {
-    return value != null && !value.trim().isEmpty();
+  private void changeStatus(Long id, boolean active) {
+    Product entity = findEntityById(id);
+
+    if (entity.isActive() == active) {
+      logger.debug("Status já definido | id={} | active={}", id, active);
+      return;
+    }
+
+    entity.setActive(active);
+
+    logger.info("Status alterado | id={} | active={}", id, active);
   }
 
 }

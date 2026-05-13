@@ -58,7 +58,7 @@ class ProductServiceIT {
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // Act
-        Page<ProductResponse> result = service.findAllPaged(name, pageRequest);
+        Page<ProductResponse> result = service.search(name, pageRequest);
 
         // Assert
         assertNotNull(result);
@@ -77,7 +77,7 @@ class ProductServiceIT {
         PageRequest pageRequest = PageRequest.of(50, 10);
 
         // Act
-        Page<ProductResponse> result = service.findAllPaged(name, pageRequest);
+        Page<ProductResponse> result = service.search(name, pageRequest);
 
         // Assert
         assertNotNull(result);
@@ -96,7 +96,7 @@ class ProductServiceIT {
         PageRequest pageRequest = PageRequest.of(0, 10, Sort.by("name"));
 
         // Act
-        Page<ProductResponse> result = service.findAllPaged(name, pageRequest);
+        Page<ProductResponse> result = service.search(name, pageRequest);
 
         // Assert
         assertNotNull(result);
@@ -115,7 +115,7 @@ class ProductServiceIT {
         PageRequest pageRequest = PageRequest.of(0, 10);
 
         // Act
-        Page<ProductResponse> result = service.findAllPaged(name, pageRequest);
+        Page<ProductResponse> result = service.search(name, pageRequest);
 
         // Assert
         assertNotNull(result);
@@ -163,7 +163,7 @@ class ProductServiceIT {
       ProductCreateRequest request = ProductFactory.createProductCreateRequest();
 
       // Act
-      ProductResponse result = service.insert(request);
+      ProductResponse result = service.create(request);
 
       // Assert
       assertNotNull(result);

@@ -184,8 +184,7 @@ class CategoryControllerIT {
           .andExpect(header().exists("Location"))
           .andExpect(jsonPath("$.id").isNotEmpty())
           .andExpect(jsonPath("$.name").value(request.name()))
-          .andExpect(jsonPath("$.description").value(request.description()))
-          .andExpect(jsonPath("$.active").value(request.active()));
+          .andExpect(jsonPath("$.description").value(request.description()));
 
       assert categoryRepository.count() == initialCount + 1;
     }

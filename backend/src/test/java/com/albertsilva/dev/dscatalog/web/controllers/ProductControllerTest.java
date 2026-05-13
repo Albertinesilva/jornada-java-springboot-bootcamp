@@ -76,14 +76,14 @@ class ProductControllerTest {
   class InsertTests {
 
     @Test
-    @DisplayName("Should insert product successfully")
-    void insertShouldReturnCreatedProduct() throws Exception {
+    @DisplayName("Should create product successfully")
+    void createShouldReturnCreatedProduct() throws Exception {
 
       // Arrange
       ProductCreateRequest request = ProductFactory.createProductCreateRequest();
       String jsonRequest = asJson(request);
 
-      when(productService.insert(any(ProductCreateRequest.class))).thenReturn(productResponse);
+      when(productService.create(any(ProductCreateRequest.class))).thenReturn(productResponse);
 
       // Act
       ResultActions resultActions = mockMvc.perform(post(BASE_URL)
@@ -100,7 +100,7 @@ class ProductControllerTest {
           .andExpect(jsonPath("$.description").value(productResponse.description()))
           .andExpect(jsonPath("$.price").value(productResponse.price()));
 
-      verify(productService).insert(any(ProductCreateRequest.class));
+      verify(productService).create(any(ProductCreateRequest.class));
     }
   }
 
@@ -112,7 +112,7 @@ class ProductControllerTest {
     @DisplayName("Should return paged products")
     void findAllShouldReturnPage() throws Exception {
 
-      when(productService.findAllPaged(any(), any(Pageable.class))).thenReturn(page);
+      when(productService.search(any(), any(Pageable.class))).thenReturn(page);
 
       ResultActions resultActions = mockMvc.perform(get(BASE_URL).accept(MediaType.APPLICATION_JSON));
 
@@ -125,20 +125,20 @@ class ProductControllerTest {
           .andExpect(jsonPath("$.size").value(10))
           .andExpect(jsonPath("$.number").value(0));
 
-      verify(productService).findAllPaged(any(), any(Pageable.class));
+      verify(productService).search(any(), any(Pageable.class));
     }
 
     @Test
     @DisplayName("Should return filtered paged products")
     void findAllShouldReturnFilteredPage() throws Exception {
 
-      when(productService.findAllPaged(eq("pc"), any(Pageable.class))).thenReturn(page);
+      when(productService.search(eq("pc"), any(Pageable.class))).thenReturn(page);
 
       ResultActions resultActions = mockMvc.perform(get(BASE_URL).param("name", "pc").accept(MediaType.APPLICATION_JSON));
 
       resultActions.andExpect(status().isOk()).andExpect(jsonPath("$.content").isArray());
 
-      verify(productService).findAllPaged(eq("pc"), any(Pageable.class));
+      verify(productService).search(eq("pc"), any(Pageable.class));
     }
   }
 

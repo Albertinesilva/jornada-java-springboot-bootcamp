@@ -21,5 +21,5 @@ package com.albertsilva.dev.dscatalog.dto.category.request;
  * @param description descrição da categoria
  * @param active      indica se a categoria será criada como ativa
  */
-public record CategoryCreateRequest(String name, String description, Boolean active) {
+public record CategoryCreateRequest(String name, String description) {
 }

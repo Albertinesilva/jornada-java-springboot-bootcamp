@@ -182,8 +182,8 @@ class ProductServiceTest {
   class FindAllPagedOperations {
 
     @Test
-    @DisplayName("findAllPaged should return page when name is empty")
-    void findAllPagedShouldReturnPageWhenNameIsEmpty() {
+    @DisplayName("search should return page when name is empty")
+    void searchShouldReturnPageWhenNameIsEmpty() {
 
       // Arrange
       String name = "";
@@ -193,7 +193,7 @@ class ProductServiceTest {
       Mockito.when(productMapper.toResponsePage(page)).thenReturn(expectedPage);
 
       // Act
-      Page<ProductResponse> result = service.findAllPaged(name, pageable);
+      Page<ProductResponse> result = service.search(name, pageable);
 
       // Assert
       Assertions.assertNotNull(result);
@@ -204,8 +204,8 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("findAllPaged should return filtered page when name exists")
-    void findAllPagedShouldReturnFilteredPageWhenNameExists() {
+    @DisplayName("search should return filtered page when name exists")
+    void searchShouldReturnFilteredPageWhenNameExists() {
 
       // Arrange
       String name = "pc";
@@ -216,7 +216,7 @@ class ProductServiceTest {
       Mockito.when(productMapper.toResponsePage(page)).thenReturn(expectedPage);
 
       // Act
-      Page<ProductResponse> result = service.findAllPaged(name, pageable);
+      Page<ProductResponse> result = service.search(name, pageable);
 
       // Assert
       Assertions.assertNotNull(result);
@@ -228,8 +228,8 @@ class ProductServiceTest {
     }
 
     @Test
-    @DisplayName("findAllPaged should trim name before filtering")
-    void findAllPagedShouldTrimNameBeforeFiltering() {
+    @DisplayName("search should trim name before filtering")
+    void searchShouldTrimNameBeforeFiltering() {
 
       // Arrange
       String name = "  pc  ";
@@ -240,7 +240,7 @@ class ProductServiceTest {
       Mockito.when(productMapper.toResponsePage(page)).thenReturn(expectedPage);
 
       // Act
-      Page<ProductResponse> result = service.findAllPaged(name, pageable);
+      Page<ProductResponse> result = service.search(name, pageable);
 
       // Assert
       Assertions.assertNotNull(result);
@@ -254,8 +254,8 @@ class ProductServiceTest {
   class InsertOperations {
 
     @Test
-    @DisplayName("insert should save product successfully")
-    void insertShouldSaveProduct() {
+    @DisplayName("create should save product successfully")
+    void createShouldSaveProduct() {
 
       // Arrange
       ProductCreateRequest request = Mockito.mock(ProductCreateRequest.class);
@@ -271,7 +271,7 @@ class ProductServiceTest {
       Mockito.when(productMapper.toResponse(product)).thenReturn(expectedResponse);
 
       // Act
-      ProductResponse result = service.insert(request);
+      ProductResponse result = service.create(request);
 
       // Assert
       Assertions.assertNotNull(result);

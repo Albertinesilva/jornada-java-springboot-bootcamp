@@ -20,5 +20,5 @@ package com.albertsilva.dev.dscatalog.dto.category.request;
  * @param description nova descrição da categoria
  * @param active      novo status da categoria
  */
-public record CategoryUpdateRequest(String name, String description, Boolean active) {
+public record CategoryUpdateRequest(String name, String description) {
 }
