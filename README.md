@@ -57,40 +57,35 @@ Ao longo desta jornada, os projetos exploram competências relevantes para o mer
 
 ## 🛠️ Stack Tecnológica
 
-### 🔹 Backend
+<p align="justify">
+A stack utilizada nesta jornada foi selecionada com foco em desenvolvimento backend moderno, escalável e alinhado às práticas adotadas no mercado. O ecossistema contempla desde construção de APIs REST até testes, persistência, observabilidade e preparação para deploy.
+</p>
 
-- Java 17+
-- Spring Boot
-- Spring Web
-- Spring Data JPA
-- Spring Security
-- Hibernate
-
-### 🔹 Banco de Dados
-
-- PostgreSQL
-- H2 Database
-
-### 🔹 Testes
-
-- JUnit 5
-- Mockito
-- Spring Boot Test
-- MockMvc
-
-### 🔹 DevOps / Infra
-
-- Docker
-- Maven
-- CI/CD (conceitos e pipelines)
-
-### 🔹 Ferramentas
-
-- IntelliJ IDEA
-- VS Code
-- Postman
-- pgAdmin
-- Git / GitHub
+| Categoria | Tecnologias | Finalidade |
+|-----------|-------------|------------|
+| ☕ Linguagem | Java 17+ | Base principal do desenvolvimento, utilizando recursos modernos da linguagem e LTS amplamente adotado no mercado |
+| 🌱 Framework Principal | Spring Boot | Criação rápida e robusta de aplicações backend com configuração simplificada e produtividade elevada |
+| 🌐 APIs REST | Spring Web | Construção de endpoints RESTful, controllers, serialização JSON e comunicação HTTP |
+| 🗄️ Persistência | Spring Data JPA | Abstração para acesso a dados com repositories e integração com banco relacional |
+| 🧩 ORM | Hibernate | Mapeamento objeto-relacional (Entity ↔ Tabelas), gerenciamento de contexto e queries |
+| 🔐 Segurança | Spring Security | Controle de autenticação, autorização e proteção de rotas |
+| 🎫 Auth Tokens | OAuth2 / JWT | Implementação de login seguro e controle de acesso baseado em tokens |
+| 🐘 Banco Principal | PostgreSQL | Banco relacional robusto utilizado em ambiente de desenvolvimento e cenários reais |
+| ⚡ Banco de Testes | H2 Database | Banco em memória para testes rápidos, isolados e reproduzíveis |
+| 🔄 Migrations | Flyway | Versionamento e controle evolutivo do schema do banco de dados |
+| 🧪 Testes Unitários | JUnit 5 | Escrita de testes automatizados para regras de negócio e componentes isolados |
+| 🎭 Mocks | Mockito | Simulação de dependências para testes unitários desacoplados |
+| 🔬 Testes Spring | Spring Boot Test | Testes integrados com contexto Spring |
+| 🌍 Testes de API | MockMvc / Postman | Validação de endpoints REST, contratos HTTP e fluxo da aplicação |
+| 📦 Build Tool | Maven | Gerenciamento de dependências, empacotamento e ciclo de build |
+| 🐳 Containerização | Docker | Padronização de ambiente e preparação para deploy |
+| 🚀 Entrega Contínua | CI/CD (conceitos) | Automação de build, testes e deploy |
+| 📄 Documentação | Swagger / OpenAPI | Documentação interativa e explorável da API |
+| 📊 Logging | SLF4J / Logback | Logs estruturados para rastreabilidade e observabilidade |
+| 💻 IDE Principal | IntelliJ IDEA | Ambiente principal de desenvolvimento Java |
+| 📝 Editor Auxiliar | VS Code | Apoio para documentação, frontend e edição rápida |
+| 🧰 Banco / Queries | pgAdmin | Administração e inspeção de banco PostgreSQL |
+| 🌍 Versionamento | Git / GitHub | Controle de versão, branches e portfólio técnico |
 
 ---
 
