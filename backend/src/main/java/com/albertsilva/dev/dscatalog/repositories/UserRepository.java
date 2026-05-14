@@ -7,6 +7,8 @@ import org.springframework.stereotype.Repository;
 
 import com.albertsilva.dev.dscatalog.entities.User;
 
+import jakarta.validation.constraints.Email;
+
 /**
  * Repositório responsável pelo acesso a dados da entidade {@link User}.
  *
@@ -75,4 +77,22 @@ public interface UserRepository extends JpaRepository<User, Long> {
    * @return página contendo usuários encontrados
    */
   Page<User> findByFirstNameContainingIgnoreCase(String firstName, Pageable pageable);
+
+  /**
+   * Busca um usuário pelo email.
+   *
+   * <p>
+   * <b>Como o Spring interpreta esse método:</b>
+   * </p>
+   * <ul>
+   * <li><b>findBy</b> → operação de busca</li>
+   * <li><b>Email</b> → campo da entidade</li>
+   * </ul>
+   *
+   * @param email email do usuário a ser buscado
+   * @return usuário encontrado ou {@code null} se não existir
+   */
+  User findByEmail(String email);
+
+  boolean existsByEmailIgnoreCase(String email);
 }

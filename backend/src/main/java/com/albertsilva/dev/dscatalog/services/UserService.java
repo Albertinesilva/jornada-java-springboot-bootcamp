@@ -107,7 +107,7 @@ public class UserService {
    *          paginação e busca textual eficiente.
    */
   @Transactional(readOnly = true)
-  public Page<UserResponse> findAllPaged(String firstName, Pageable pageable) {
+  public Page<UserResponse> search(String firstName, Pageable pageable) {
     logger.debug("Buscando usuários. filtroNome: {}", firstName);
 
     Page<User> users;
@@ -176,8 +176,8 @@ public class UserService {
    *          DTO Pattern, persistência e criação de entidades em APIs RESTful.
    */
   @Transactional
-  public UserResponse insert(UserCreateRequest request) {
-    logger.debug("Inserindo novo usuário - email: {}", request.email());
+  public UserResponse create(UserCreateRequest request) {
+    logger.debug("Criando novo usuário - email: {}", request.email());
 
     Set<Role> roles = findRolesByIdsOrThrow(request.roleIds());
 

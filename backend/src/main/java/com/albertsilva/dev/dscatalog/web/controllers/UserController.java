@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 /**
  * Controller responsável por expor os endpoints REST da entidade User.
@@ -101,10 +102,10 @@ public class UserController {
       @ApiResponse(responseCode = "409", description = "Usuário já existente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @PostMapping
-  public ResponseEntity<UserResponse> insert(@RequestBody UserCreateRequest userCreateRequest) {
+  public ResponseEntity<UserResponse> create(@Valid @RequestBody UserCreateRequest userCreateRequest) {
 
     logger.debug("Recebendo requisição para criar usuário: {}", userCreateRequest);
-    UserResponse response = userService.insert(userCreateRequest);
+    UserResponse response = userService.create(userCreateRequest);
     URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(response.id()).toUri();
 
     logger.info("Usuário criado com sucesso. id: {}", response.id());
@@ -144,7 +145,7 @@ public class UserController {
         pageable.getPageSize(),
         pageable.getSort().isSorted() ? pageable.getSort() : "unsorted");
 
-    Page<UserResponse> response = userService.findAllPaged(firstName, pageable);
+    Page<UserResponse> response = userService.search(firstName, pageable);
 
     logger.debug("Usuários encontrados: {}", response.getTotalElements());
 
@@ -200,7 +201,8 @@ public class UserController {
       @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @PatchMapping(value = "/{id}")
-  public ResponseEntity<UserResponse> update(@PathVariable Long id, @RequestBody UserUpdateRequest userUpdateRequest) {
+  public ResponseEntity<UserResponse> update(@PathVariable Long id,
+      @Valid @RequestBody UserUpdateRequest userUpdateRequest) {
 
     logger.debug("Atualizando usuário id={} com dados: {}", id, userUpdateRequest);
 
