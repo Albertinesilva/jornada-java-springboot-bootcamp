@@ -59,45 +59,32 @@ public class UserMapper {
 
   /*
    * *
-   * Atualiza os dados de uma entidade {@link User} com base em um
+   * *
+   * Atualiza uma entidade {@link User} com os dados de um
    * {@link UserUpdateRequest}.
    *
    * <p>
    * <b>Comportamento:</b>
    * </p>
    * <ul>
-   * <li>Verifica se o request e a entidade são nulos</li>
-   * <li>Atualiza os campos não nulos do request na entidade</li>
+   * <li>Atualiza os campos básicos (firstName, lastName, email)</li>
+   * <li>Substitui os papéis (roles) pelos novos fornecidos</li>
    * </ul>
    *
    * @param request dados recebidos na requisição de atualização
    * 
    * @param entity entidade a ser atualizada
    * 
-   * @param roles conjunto de papéis já resolvidos pela camada de serviço
+   * @param roles conjunto de entidades {@link Role} associadas ao usuário
    */
   public void updateEntity(UserUpdateRequest request, User entity, Set<Role> roles) {
 
-    if (request == null || entity == null) {
-      return;
-    }
+    entity.setFirstName(request.firstName());
+    entity.setLastName(request.lastName());
+    entity.setEmail(request.email());
 
-    if (request.firstName() != null) {
-      entity.setFirstName(request.firstName());
-    }
-
-    if (request.lastName() != null) {
-      entity.setLastName(request.lastName());
-    }
-
-    if (request.email() != null) {
-      entity.setEmail(request.email());
-    }
-
-    if (roles != null) {
-      entity.getRoles().clear();
-      entity.getRoles().addAll(roles);
-    }
+    entity.getRoles().clear();
+    entity.getRoles().addAll(roles);
   }
 
   /*
