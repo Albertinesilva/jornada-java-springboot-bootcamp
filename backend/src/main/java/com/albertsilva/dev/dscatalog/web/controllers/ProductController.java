@@ -32,6 +32,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 
 /**
  * Controller responsável por expor os endpoints REST da entidade Product.
@@ -127,7 +128,7 @@ public class ProductController {
       @ApiResponse(responseCode = "409", description = "Produto já existente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @PostMapping
-  public ResponseEntity<ProductResponse> create(@RequestBody ProductCreateRequest productCreateRequest) {
+  public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductCreateRequest productCreateRequest) {
     logger.debug("Recebendo requisição para criar produto: {}", productCreateRequest);
 
     ProductResponse productResponse = productService.create(productCreateRequest);
@@ -250,7 +251,7 @@ public class ProductController {
   })
   @PatchMapping(value = "/{id}")
   public ResponseEntity<ProductResponse> update(@PathVariable Long id,
-      @RequestBody ProductUpdateRequest productUpdateRequest) {
+      @Valid @RequestBody ProductUpdateRequest productUpdateRequest) {
 
     logger.debug("Atualizando produto id={} com dados: {}", id, productUpdateRequest);
 

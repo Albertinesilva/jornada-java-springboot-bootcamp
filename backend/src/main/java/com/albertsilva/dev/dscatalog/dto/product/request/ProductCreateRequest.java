@@ -3,8 +3,12 @@ package com.albertsilva.dev.dscatalog.dto.product.request;
 import java.time.Instant;
 import java.util.List;
 
+import com.albertsilva.dev.dscatalog.validation.product.annotation.ProductCreateValid;
+
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
@@ -42,20 +46,27 @@ import jakarta.validation.constraints.Size;
  * @param date        data associada
  * @param categoryIds lista de IDs das categorias
  */
+@ProductCreateValid
 public record ProductCreateRequest(
-    @NotBlank(message = "O nome do produto é obrigatório") 
-    @Size(min = 3, max = 100, message = "O nome do produto deve conter entre 3 e 100 caracteres") 
-    String name,
 
-    @Size(min = 3, max = 200, message = "A descrição do produto deve conter no máximo 200 caracteres") 
-    String description,
+        @NotBlank(message = "O nome do produto é obrigatório") 
+        @Size(min = 3, max = 100, message = "O nome do produto deve conter entre 3 e 100 caracteres") 
+        @Pattern(regexp = "^[A-Za-zÀ-ÿ0-9\\s\\-()]+$", message = "O nome do produto possui caracteres inválidos") 
+        String name,
 
-    @Positive(message = "O preço deve ser um valor positivo") 
-    Double price,
-    String imgUrl,
+        @Size(min = 3, max = 200, message = "A descrição do produto deve conter entre 3 e 200 caracteres") 
+        String description,
 
-    @PastOrPresent(message = "A data deve ser no passado ou presente") 
-    Instant date,
+        @Positive(message = "O preço deve ser um valor positivo") 
+        Double price,
 
-    List<Long> categoryIds) {
+        @Pattern(regexp = "^(https?://).+$", message = "A URL da imagem é inválida") 
+        String imgUrl,
+
+        @PastOrPresent(message = "A data deve ser no passado ou presente") 
+        Instant date,
+
+        @NotEmpty(message = "O produto deve possuir ao menos uma categoria") 
+        List<Long> categoryIds) { 
+
 }

@@ -64,6 +64,7 @@ public class Product implements Serializable {
    * Utilizado para identificação e exibição.
    * </p>
    */
+  @Column(nullable = false, unique = true)
   private String name;
 
   /**
