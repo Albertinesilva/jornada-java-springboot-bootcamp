@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 import com.albertsilva.dev.dscatalog.dto.user.request.UserCreateRequest;
 import com.albertsilva.dev.dscatalog.validation.user.annotation.UserCreateValid;
-import com.albertsilva.dev.dscatalog.web.exceptions.response.FieldMessage;
+import com.albertsilva.dev.dscatalog.web.exception.response.FieldMessage;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

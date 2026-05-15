@@ -6,10 +6,10 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 import com.albertsilva.dev.dscatalog.dto.product.request.ProductCreateRequest;
-import com.albertsilva.dev.dscatalog.repositories.CategoryRepository;
-import com.albertsilva.dev.dscatalog.repositories.ProductRepository;
+import com.albertsilva.dev.dscatalog.repository.CategoryRepository;
+import com.albertsilva.dev.dscatalog.repository.ProductRepository;
 import com.albertsilva.dev.dscatalog.validation.product.annotation.ProductCreateValid;
-import com.albertsilva.dev.dscatalog.web.exceptions.response.FieldMessage;
+import com.albertsilva.dev.dscatalog.web.exception.response.FieldMessage;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

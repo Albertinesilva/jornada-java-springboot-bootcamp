@@ -2,7 +2,7 @@ package com.albertsilva.dev.dscatalog.validation.user.validator;
 
 import org.springframework.stereotype.Component;
 
-import com.albertsilva.dev.dscatalog.repositories.UserRepository;
+import com.albertsilva.dev.dscatalog.repository.UserRepository;
 import com.albertsilva.dev.dscatalog.validation.user.annotation.UniqueEmail;
 
 import jakarta.validation.ConstraintValidator;

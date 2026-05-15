@@ -12,8 +12,8 @@ import com.albertsilva.dev.dscatalog.dto.user.request.UserCreateRequest;
 import com.albertsilva.dev.dscatalog.dto.user.request.UserUpdateRequest;
 import com.albertsilva.dev.dscatalog.dto.user.response.UserDetailsResponse;
 import com.albertsilva.dev.dscatalog.dto.user.response.UserResponse;
-import com.albertsilva.dev.dscatalog.entities.Role;
-import com.albertsilva.dev.dscatalog.entities.User;
+import com.albertsilva.dev.dscatalog.entity.Role;
+import com.albertsilva.dev.dscatalog.entity.User;
 
 @Component
 public class UserMapper {

@@ -3,7 +3,7 @@ package com.albertsilva.dev.dscatalog.factory;
 import com.albertsilva.dev.dscatalog.dto.category.request.CategoryCreateRequest;
 import com.albertsilva.dev.dscatalog.dto.category.request.CategoryUpdateRequest;
 import com.albertsilva.dev.dscatalog.dto.category.response.CategoryResponse;
-import com.albertsilva.dev.dscatalog.entities.Category;
+import com.albertsilva.dev.dscatalog.entity.Category;
 
 public class CategoryFactory {
 

@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerMapping;
 
 import com.albertsilva.dev.dscatalog.dto.category.request.CategoryUpdateRequest;
-import com.albertsilva.dev.dscatalog.repositories.CategoryRepository;
+import com.albertsilva.dev.dscatalog.repository.CategoryRepository;
 import com.albertsilva.dev.dscatalog.validation.category.annotation.CategoryUpdateValid;
-import com.albertsilva.dev.dscatalog.web.exceptions.response.FieldMessage;
+import com.albertsilva.dev.dscatalog.web.exception.response.FieldMessage;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintValidator;

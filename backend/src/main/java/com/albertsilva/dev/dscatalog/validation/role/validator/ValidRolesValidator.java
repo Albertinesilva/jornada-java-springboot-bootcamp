@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.springframework.stereotype.Component;
 
-import com.albertsilva.dev.dscatalog.repositories.RoleRepository;
+import com.albertsilva.dev.dscatalog.repository.RoleRepository;
 import com.albertsilva.dev.dscatalog.validation.role.annotation.ValidRoles;
 
 import jakarta.validation.ConstraintValidator;

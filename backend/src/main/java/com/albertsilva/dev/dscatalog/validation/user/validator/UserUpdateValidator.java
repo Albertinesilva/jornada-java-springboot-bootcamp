@@ -8,9 +8,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerMapping;
 
 import com.albertsilva.dev.dscatalog.dto.user.request.UserUpdateRequest;
-import com.albertsilva.dev.dscatalog.repositories.UserRepository;
+import com.albertsilva.dev.dscatalog.repository.UserRepository;
 import com.albertsilva.dev.dscatalog.validation.user.annotation.UserUpdateValid;
-import com.albertsilva.dev.dscatalog.web.exceptions.response.FieldMessage;
+import com.albertsilva.dev.dscatalog.web.exception.response.FieldMessage;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.ConstraintValidator;
