@@ -1,12 +1,16 @@
 package com.albertsilva.dev.dscatalog.service;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +23,7 @@ import com.albertsilva.dev.dscatalog.dto.user.response.UserResponse;
 import com.albertsilva.dev.dscatalog.entity.Role;
 import com.albertsilva.dev.dscatalog.entity.User;
 import com.albertsilva.dev.dscatalog.mapper.user.UserMapper;
+import com.albertsilva.dev.dscatalog.projection.UserDetailsProjection;
 import com.albertsilva.dev.dscatalog.repository.RoleRepository;
 import com.albertsilva.dev.dscatalog.repository.UserRepository;
 import com.albertsilva.dev.dscatalog.service.exception.ResourceNotFoundException;
@@ -56,7 +61,7 @@ import jakarta.persistence.EntityNotFoundException;
  *          persistência com JPA, paginação e regras de negócio centralizadas.
  */
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
   private static final Logger logger = LoggerFactory.getLogger(UserService.class);
 
@@ -414,5 +419,48 @@ public class UserService {
     entity.setActive(active);
 
     logger.info("Status alterado | id={} | active={}", id, active);
+  }
+
+  /**
+   * Carrega um usuário pelo seu email para autenticação.
+   *
+   * <p>
+   * Busca o usuário e suas roles associadas, convertendo-os em um objeto
+   * {@link UserDetails} para uso pelo Spring Security.
+   * </p>
+   *
+   * @param username email do usuário a ser autenticado
+   * @return detalhes do usuário para autenticação
+   * @throws UsernameNotFoundException caso o usuário não seja encontrado
+   *
+   * @implNote
+   *           Utiliza uma consulta personalizada para buscar o usuário e suas
+   *           roles em uma única operação, otimizando o processo de
+   *           autenticação.
+   *
+   * @apiNote
+   *          Esta implementação reforça conceitos importantes como:
+   *          autenticação, UserDetailsService, consultas personalizadas e
+   *          integração com Spring Security.
+   */
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+    List<UserDetailsProjection> result = userRepository.searchUserAndRolesByEmail(username);
+
+    if (result.isEmpty()) {
+      logger.warn("Usuário não encontrado para email: {}", username);
+      throw new UsernameNotFoundException("User not found with email: " + username);
+    }
+
+    User user = new User();
+    user.setEmail(result.get(0).getUsername());
+    user.setPassword(result.get(0).getPassword());
+
+    for (UserDetailsProjection projection : result) {
+      user.addRole(new Role(projection.getRoleId(), projection.getAuthority()));
+    }
+
+    return user;
   }
 }
