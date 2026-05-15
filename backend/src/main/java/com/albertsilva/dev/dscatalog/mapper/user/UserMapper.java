@@ -1,4 +1,4 @@
-package com.albertsilva.dev.dscatalog.dto.user.mapper;
+package com.albertsilva.dev.dscatalog.mapper.user;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
-import com.albertsilva.dev.dscatalog.dto.role.RoleResponse;
+import com.albertsilva.dev.dscatalog.dto.role.response.RoleResponse;
 import com.albertsilva.dev.dscatalog.dto.user.request.UserCreateRequest;
 import com.albertsilva.dev.dscatalog.dto.user.request.UserUpdateRequest;
 import com.albertsilva.dev.dscatalog.dto.user.response.UserDetailsResponse;

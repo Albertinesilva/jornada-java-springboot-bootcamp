@@ -7,33 +7,45 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 /**
- * DTO utilizado para requisições de atualização de categoria.
+ * DTO utilizado para requisições de atualização
+ * de categorias.
  *
  * <p>
- * Permite atualização parcial dos dados da categoria, onde apenas
- * os campos informados (não nulos) serão alterados.
- * </p>
+ * Representa os dados fornecidos pelo cliente
+ * durante o processo de atualização de uma categoria.
  *
  * <p>
- * <b>Comportamento:</b>
- * </p>
+ * Este DTO utiliza a annotation
+ * {@link CategoryUpdateValid} para executar
+ * validações contextuais relacionadas ao processo
+ * de atualização.
+ *
+ * <p>
+ * As validações aplicadas garantem:
  * <ul>
- * <li>Campos nulos são ignorados</li>
- * <li>Suporta atualização parcial (similar a PATCH)</li>
+ * <li>Obrigatoriedade do nome da categoria</li>
+ * <li>Tamanho mínimo e máximo permitido</li>
+ * <li>Validação de caracteres permitidos</li>
+ * <li>Validação do tamanho da descrição</li>
+ * <li>Validações contextuais de atualização</li>
  * </ul>
+ *
+ * <p>
+ * As regras de validação utilizam Bean Validation
+ * através das annotations presentes nos atributos
+ * do record.
  *
  * @param name        novo nome da categoria
  * @param description nova descrição da categoria
- * @param active      novo status da categoria
  */
 @CategoryUpdateValid
 public record CategoryUpdateRequest(
 
-        @NotBlank(message = "O nome da categoria é obrigatório") 
-        @Size(min = 3, max = 80, message = "O nome da categoria deve ter entre 3 e 80 caracteres")
-        @Pattern(regexp = "^[A-Za-zÀ-ÿ0-9\\s]+$", message = "O nome da categoria possui caracteres inválidos")
-        String name,
+    @NotBlank(message = "O nome da categoria é obrigatório") 
+    @Size(min = 3, max = 80, message = "O nome da categoria deve ter entre 3 e 80 caracteres") 
+    @Pattern(regexp = "^[A-Za-zÀ-ÿ0-9\\s]+$", message = "O nome da categoria possui caracteres inválidos") 
+    String name,
 
-        @Pattern(regexp = "^$|^.{3,255}$", message = "A descrição deve ter entre 3 e 255 caracteres") 
-        String description) {
+    @Pattern(regexp = "^$|^.{3,255}$", message = "A descrição deve ter entre 3 e 255 caracteres") 
+    String description) {
 }

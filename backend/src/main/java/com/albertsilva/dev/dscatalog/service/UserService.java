@@ -11,13 +11,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.albertsilva.dev.dscatalog.dto.user.mapper.UserMapper;
 import com.albertsilva.dev.dscatalog.dto.user.request.UserCreateRequest;
 import com.albertsilva.dev.dscatalog.dto.user.request.UserUpdateRequest;
 import com.albertsilva.dev.dscatalog.dto.user.response.UserDetailsResponse;
 import com.albertsilva.dev.dscatalog.dto.user.response.UserResponse;
 import com.albertsilva.dev.dscatalog.entity.Role;
 import com.albertsilva.dev.dscatalog.entity.User;
+import com.albertsilva.dev.dscatalog.mapper.user.UserMapper;
 import com.albertsilva.dev.dscatalog.repository.RoleRepository;
 import com.albertsilva.dev.dscatalog.repository.UserRepository;
 import com.albertsilva.dev.dscatalog.service.exception.ResourceNotFoundException;
