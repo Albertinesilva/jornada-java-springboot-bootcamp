@@ -2,6 +2,7 @@ package com.albertsilva.dev.dscatalog.dto.user.request;
 
 import java.util.Set;
 
+import com.albertsilva.dev.dscatalog.validation.role.annotation.ValidRoles;
 import com.albertsilva.dev.dscatalog.validation.user.annotation.StrongPassword;
 import com.albertsilva.dev.dscatalog.validation.user.annotation.UniqueEmail;
 import com.albertsilva.dev.dscatalog.validation.user.annotation.UserCreateValid;
@@ -31,5 +32,6 @@ public record UserCreateRequest(
         String password,
 
         @NotEmpty(message = "Usuário deve possuir ao menos uma role")
+        @ValidRoles
         Set<Long> roleIds) {
 }
