@@ -1,4 +1,4 @@
-package com.albertsilva.dev.dscatalog.services;
+package com.albertsilva.dev.dscatalog.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,13 +8,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import com.albertsilva.dev.dscatalog.dto.category.mapper.CategoryMapper;
 import com.albertsilva.dev.dscatalog.dto.category.request.CategoryCreateRequest;
 import com.albertsilva.dev.dscatalog.dto.category.request.CategoryUpdateRequest;
 import com.albertsilva.dev.dscatalog.dto.category.response.CategoryResponse;
-import com.albertsilva.dev.dscatalog.entities.Category;
-import com.albertsilva.dev.dscatalog.repositories.CategoryRepository;
-import com.albertsilva.dev.dscatalog.services.exceptions.ResourceNotFoundException;
+import com.albertsilva.dev.dscatalog.entity.Category;
+import com.albertsilva.dev.dscatalog.mapper.category.CategoryMapper;
+import com.albertsilva.dev.dscatalog.repositorie.CategoryRepository;
+import com.albertsilva.dev.dscatalog.service.exceptions.ResourceNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
 

@@ -1,4 +1,4 @@
-package com.albertsilva.dev.dscatalog.web.controllers;
+package com.albertsilva.dev.dscatalog.web.controller;
 
 import java.net.URI;
 
@@ -21,8 +21,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import com.albertsilva.dev.dscatalog.dto.category.request.CategoryCreateRequest;
 import com.albertsilva.dev.dscatalog.dto.category.request.CategoryUpdateRequest;
 import com.albertsilva.dev.dscatalog.dto.category.response.CategoryResponse;
-import com.albertsilva.dev.dscatalog.services.CategoryService;
-import com.albertsilva.dev.dscatalog.web.exceptions.response.ProblemDetails;
+import com.albertsilva.dev.dscatalog.service.CategoryService;
+import com.albertsilva.dev.dscatalog.web.exception.response.ProblemDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

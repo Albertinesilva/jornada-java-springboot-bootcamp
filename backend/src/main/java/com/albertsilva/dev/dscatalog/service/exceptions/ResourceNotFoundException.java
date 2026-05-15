@@ -1,4 +1,4 @@
-package com.albertsilva.dev.dscatalog.services.exceptions;
+package com.albertsilva.dev.dscatalog.service.exceptions;
 
 /**
  * Exceção lançada quando um recurso não é encontrado no sistema.

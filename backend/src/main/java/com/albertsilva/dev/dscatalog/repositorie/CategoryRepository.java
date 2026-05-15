@@ -1,11 +1,11 @@
-package com.albertsilva.dev.dscatalog.repositories;
+package com.albertsilva.dev.dscatalog.repositorie;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.albertsilva.dev.dscatalog.entities.Category;
+import com.albertsilva.dev.dscatalog.entity.Category;
 
 /**
  * Repositório responsável pelo acesso a dados da entidade {@link Category}.

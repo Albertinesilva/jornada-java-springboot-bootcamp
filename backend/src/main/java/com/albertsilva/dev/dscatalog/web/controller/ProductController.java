@@ -1,4 +1,4 @@
-package com.albertsilva.dev.dscatalog.web.controllers;
+package com.albertsilva.dev.dscatalog.web.controller;
 
 import java.net.URI;
 
@@ -22,8 +22,8 @@ import com.albertsilva.dev.dscatalog.dto.product.request.ProductCreateRequest;
 import com.albertsilva.dev.dscatalog.dto.product.request.ProductUpdateRequest;
 import com.albertsilva.dev.dscatalog.dto.product.response.ProductDetailsResponse;
 import com.albertsilva.dev.dscatalog.dto.product.response.ProductResponse;
-import com.albertsilva.dev.dscatalog.services.ProductService;
-import com.albertsilva.dev.dscatalog.web.exceptions.response.ProblemDetails;
+import com.albertsilva.dev.dscatalog.service.ProductService;
+import com.albertsilva.dev.dscatalog.web.exception.response.ProblemDetails;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;

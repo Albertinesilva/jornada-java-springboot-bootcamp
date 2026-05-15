@@ -1,4 +1,4 @@
-package com.albertsilva.dev.dscatalog.services;
+package com.albertsilva.dev.dscatalog.service;
 
 import java.util.List;
 
@@ -11,17 +11,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import com.albertsilva.dev.dscatalog.dto.product.mapper.ProductMapper;
 import com.albertsilva.dev.dscatalog.dto.product.request.ProductCreateRequest;
 import com.albertsilva.dev.dscatalog.dto.product.request.ProductUpdateRequest;
 import com.albertsilva.dev.dscatalog.dto.product.response.ProductDetailsResponse;
 import com.albertsilva.dev.dscatalog.dto.product.response.ProductResponse;
-import com.albertsilva.dev.dscatalog.entities.Category;
-import com.albertsilva.dev.dscatalog.entities.Product;
-import com.albertsilva.dev.dscatalog.repositories.CategoryRepository;
-import com.albertsilva.dev.dscatalog.repositories.ProductRepository;
-import com.albertsilva.dev.dscatalog.services.exceptions.DatabaseException;
-import com.albertsilva.dev.dscatalog.services.exceptions.ResourceNotFoundException;
+import com.albertsilva.dev.dscatalog.entity.Category;
+import com.albertsilva.dev.dscatalog.entity.Product;
+import com.albertsilva.dev.dscatalog.mapper.product.ProductMapper;
+import com.albertsilva.dev.dscatalog.repositorie.CategoryRepository;
+import com.albertsilva.dev.dscatalog.repositorie.ProductRepository;
+import com.albertsilva.dev.dscatalog.service.exceptions.DatabaseException;
+import com.albertsilva.dev.dscatalog.service.exceptions.ResourceNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
 

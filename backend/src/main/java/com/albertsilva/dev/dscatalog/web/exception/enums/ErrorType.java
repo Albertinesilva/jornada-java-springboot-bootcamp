@@ -1,4 +1,4 @@
-package com.albertsilva.dev.dscatalog.web.exceptions.enums;
+package com.albertsilva.dev.dscatalog.web.exception.enums;
 
 public enum ErrorType {
 

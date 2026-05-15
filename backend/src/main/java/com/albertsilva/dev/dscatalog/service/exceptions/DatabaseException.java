@@ -1,4 +1,4 @@
-package com.albertsilva.dev.dscatalog.services.exceptions;
+package com.albertsilva.dev.dscatalog.service.exceptions;
 
 /**
  * Exceção lançada quando ocorre um erro relacionado ao banco de dados.
