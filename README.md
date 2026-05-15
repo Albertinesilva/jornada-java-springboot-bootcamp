@@ -1,4 +1,4 @@
-<h1 align="center">🧪 Capítulo 02 — Testes Automatizados no Back-End | Spring Boot</h1>
+# 🧪 Capítulo 02 — Testes Automatizados no Back-End | Spring Boot
 
 <p align="text-align: justify;">
 <em>Este capítulo apresenta a construção de uma estratégia profissional de testes automatizados aplicada ao projeto <strong>DSCatalog</strong>, utilizando <code>Java</code>, <code>Spring Boot 3</code>, <code>JUnit 5</code>, <code>Mockito</code>, <code>MockMvc</code> e princípios sólidos de engenharia de software para garantir qualidade, previsibilidade, segurança evolutiva e manutenção sustentável.</em>em>
