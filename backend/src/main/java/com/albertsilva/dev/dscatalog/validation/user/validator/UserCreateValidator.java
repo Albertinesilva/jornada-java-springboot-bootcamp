@@ -32,29 +32,16 @@ public class UserCreateValidator implements ConstraintValidator<UserCreateValid,
             return;
         }
 
-        String password = dto.password().toLowerCase();
+        String password = dto.password().trim().toLowerCase();
 
         validateToken(password, dto.firstName(), errors);
         validateToken(password, dto.lastName(), errors);
 
-        if (dto.email() != null) {
+        if (dto.email() != null && dto.email().contains("@")) {
 
             String emailPrefix = dto.email().split("@")[0];
 
             validateToken(password, emailPrefix, errors);
-        }
-    }
-
-    private void addErrors(List<FieldMessage> errors, ConstraintValidatorContext context) {
-
-        if (!errors.isEmpty()) {
-            context.disableDefaultConstraintViolation();
-        }
-
-        for (FieldMessage error : errors) {
-
-            context.buildConstraintViolationWithTemplate(error.message()).addPropertyNode(error.fieldName())
-                    .addConstraintViolation();
         }
     }
 
@@ -70,9 +57,26 @@ public class UserCreateValidator implements ConstraintValidator<UserCreateValid,
             return;
         }
 
-        if (password.contains(normalized)) {
+        boolean alreadyExists = errors.stream().anyMatch(error -> error.fieldName().equals("password")
+                && error.message().equals("Senha não pode conter dados pessoais"));
 
+        if (password.contains(normalized) && !alreadyExists) {
             errors.add(new FieldMessage("password", "Senha não pode conter dados pessoais"));
+        }
+    }
+
+    private void addErrors(List<FieldMessage> errors, ConstraintValidatorContext context) {
+
+        if (errors.isEmpty()) {
+            return;
+        }
+
+        context.disableDefaultConstraintViolation();
+
+        for (FieldMessage error : errors) {
+
+            context.buildConstraintViolationWithTemplate(error.message()).addPropertyNode(error.fieldName())
+                    .addConstraintViolation();
         }
     }
 }

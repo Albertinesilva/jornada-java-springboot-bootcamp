@@ -17,6 +17,8 @@ import jakarta.validation.ConstraintValidatorContext;
 
 public class UserUpdateValidator implements ConstraintValidator<UserUpdateValid, UserUpdateRequest> {
 
+  private static final int MIN_TOKEN_LENGTH = 3;
+
   private final UserRepository repository;
   private final HttpServletRequest request;
 
@@ -31,7 +33,7 @@ public class UserUpdateValidator implements ConstraintValidator<UserUpdateValid,
     List<FieldMessage> errors = new ArrayList<>();
 
     validateUniqueEmail(dto, errors);
-    validatePasswordDoesNotContainName(dto, errors);
+    validatePasswordDoesNotContainPersonalData(dto, errors);
 
     addErrors(errors, context);
 
@@ -44,6 +46,7 @@ public class UserUpdateValidator implements ConstraintValidator<UserUpdateValid,
       return;
     }
 
+    @SuppressWarnings("unchecked")
     Map<String, String> uriVars = (Map<String, String>) request
         .getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
 
@@ -51,32 +54,62 @@ public class UserUpdateValidator implements ConstraintValidator<UserUpdateValid,
       return;
     }
 
-    Long userId = Long.parseLong(uriVars.get("id"));
+    Long userId;
+
+    try {
+
+      userId = Long.parseLong(uriVars.get("id"));
+
+    } catch (NumberFormatException e) {
+
+      return;
+    }
 
     String normalizedEmail = dto.email().trim().toLowerCase();
 
     boolean emailAlreadyExists = repository.existsByEmailIgnoreCaseAndIdNot(normalizedEmail, userId);
 
     if (emailAlreadyExists) {
-
       errors.add(new FieldMessage("email", "Email já cadastrado"));
     }
   }
 
-  private void validatePasswordDoesNotContainName(UserUpdateRequest dto, List<FieldMessage> errors) {
+  private void validatePasswordDoesNotContainPersonalData(UserUpdateRequest dto, List<FieldMessage> errors) {
 
-    if (dto.password() == null || dto.password().isBlank() || dto.firstName() == null || dto.firstName().isBlank()) {
-
+    if (dto.password() == null || dto.password().isBlank()) {
       return;
     }
 
     String password = dto.password().trim().toLowerCase();
 
-    String firstName = dto.firstName().trim().toLowerCase();
+    validateToken(password, dto.firstName(), errors);
+    validateToken(password, dto.lastName(), errors);
 
-    if (password.contains(firstName)) {
+    if (dto.email() != null && dto.email().contains("@")) {
 
-      errors.add(new FieldMessage("password", "Senha não pode conter o primeiro nome"));
+      String emailPrefix = dto.email().split("@")[0];
+
+      validateToken(password, emailPrefix, errors);
+    }
+  }
+
+  private void validateToken(String password, String value, List<FieldMessage> errors) {
+
+    if (value == null) {
+      return;
+    }
+
+    String normalized = value.trim().toLowerCase();
+
+    if (normalized.length() < MIN_TOKEN_LENGTH) {
+      return;
+    }
+
+    boolean alreadyExists = errors.stream().anyMatch(error -> error.fieldName().equals("password")
+        && error.message().equals("Senha não pode conter dados pessoais"));
+
+    if (password.contains(normalized) && !alreadyExists) {
+      errors.add(new FieldMessage("password", "Senha não pode conter dados pessoais"));
     }
   }
 
