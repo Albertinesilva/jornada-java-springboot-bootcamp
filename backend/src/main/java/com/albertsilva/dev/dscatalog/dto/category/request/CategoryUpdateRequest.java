@@ -41,11 +41,11 @@ import jakarta.validation.constraints.Size;
 @CategoryUpdateValid
 public record CategoryUpdateRequest(
 
-    @NotBlank(message = "O nome da categoria é obrigatório") 
-    @Size(min = 3, max = 80, message = "O nome da categoria deve ter entre 3 e 80 caracteres") 
-    @Pattern(regexp = "^[A-Za-zÀ-ÿ0-9\\s]+$", message = "O nome da categoria possui caracteres inválidos") 
+    @NotBlank(message = "{category.name.notBlank}") 
+    @Size(min = 3, max = 80, message = "{category.name.size}") 
+    @Pattern(regexp = "^[A-Za-zÀ-ÿ0-9\\s]+$", message = "{category.name.pattern}") 
     String name,
 
-    @Pattern(regexp = "^$|^.{3,255}$", message = "A descrição deve ter entre 3 e 255 caracteres") 
+    @Pattern(regexp = "^$|^.{3,255}$", message = "{category.description.size}") 
     String description) {
 }

@@ -66,23 +66,23 @@ import jakarta.validation.constraints.Size;
 @ProductUpdateValid
 public record ProductUpdateRequest(
 
-    @NotBlank(message = "O nome do produto é obrigatório") 
-    @Size(min = 3, max = 100, message = "O nome do produto deve conter entre 3 e 100 caracteres") 
-    @Pattern(regexp = "^[A-Za-zÀ-ÿ0-9\\s\\-()]+$", message = "O nome do produto possui caracteres inválidos") 
+    @NotBlank(message = "{product.name.notBlank}") 
+    @Size(min = 3, max = 100, message = "{product.name.size}") 
+    @Pattern(regexp = "^[A-Za-zÀ-ÿ0-9\\s\\-()]+$", message = "{product.name.pattern}") 
     String name,
 
-    @Size(min = 3, max = 200, message = "A descrição do produto deve conter entre 3 e 200 caracteres") 
+    @Size(min = 3, max = 200, message = "{product.description.size}") 
     String description,
 
-    @Positive(message = "O preço deve ser um valor positivo") 
+    @Positive(message = "{product.price.positive}") 
     Double price,
 
-    @Pattern(regexp = "^(https?://).+$", message = "A URL da imagem é inválida") 
+    @Pattern(regexp = "^(https?://).+$", message = "{product.imgUrl.pattern}") 
     String imgUrl,
 
-    @PastOrPresent(message = "A data deve ser no passado ou presente") 
+    @PastOrPresent(message = "{product.date.pastOrPresent}") 
     Instant date,
 
-    @NotEmpty(message = "O produto deve possuir ao menos uma categoria") 
+    @NotEmpty(message = "{product.categoryIds.notEmpty}") 
     List<Long> categoryIds) {
 }
