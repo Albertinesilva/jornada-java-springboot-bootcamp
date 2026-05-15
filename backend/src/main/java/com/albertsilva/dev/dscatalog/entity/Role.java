@@ -8,14 +8,32 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
+/**
+ * Representa uma autoridade (role) do sistema.
+ *
+ * <p>
+ * Roles são utilizadas para controle de acesso e autorização, e são
+ * atribuídas a instâncias de {@code User} por meio de relacionamento.
+ * </p>
+ *
+ * <p>
+ * <b>Mapeamento:</b>
+ * </p>
+ * <ul>
+ * <li>Tabela: tb_role</li>
+ * </ul>
+ */
 @Entity
 @Table(name = "tb_role")
 public class Role implements Serializable {
   private static final long serialVersionUID = 1L;
 
+  /** Identificador único da role. */
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
+  /** Nome/identificador da autoridade (ex.: "ROLE_ADMIN"). */
   private String authority;
 
   public Role() {
@@ -26,18 +44,30 @@ public class Role implements Serializable {
     this.authority = authority;
   }
 
+  /**
+   * @return identificador único da role
+   */
   public Long getId() {
     return id;
   }
 
+  /**
+   * @param id identificador único da role
+   */
   public void setId(Long id) {
     this.id = id;
   }
 
+  /**
+   * @return nome/identificador da autoridade (por exemplo, "ROLE_USER")
+   */
   public String getAuthority() {
     return authority;
   }
 
+  /**
+   * @param authority nome/identificador da autoridade
+   */
   public void setAuthority(String authority) {
     this.authority = authority;
   }
