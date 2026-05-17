@@ -10,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.albertsilva.dev.dscatalog.service.exceptions.DatabaseException;
-import com.albertsilva.dev.dscatalog.service.exceptions.ResourceNotFoundException;
+import com.albertsilva.dev.dscatalog.service.exception.DatabaseException;
+import com.albertsilva.dev.dscatalog.service.exception.ResourceNotFoundException;
 import com.albertsilva.dev.dscatalog.web.exception.enums.ErrorType;
 import com.albertsilva.dev.dscatalog.web.exception.response.ProblemDetails;
 

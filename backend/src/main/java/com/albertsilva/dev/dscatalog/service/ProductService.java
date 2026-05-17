@@ -20,8 +20,8 @@ import com.albertsilva.dev.dscatalog.entity.Product;
 import com.albertsilva.dev.dscatalog.mapper.product.ProductMapper;
 import com.albertsilva.dev.dscatalog.repository.CategoryRepository;
 import com.albertsilva.dev.dscatalog.repository.ProductRepository;
-import com.albertsilva.dev.dscatalog.service.exceptions.DatabaseException;
-import com.albertsilva.dev.dscatalog.service.exceptions.ResourceNotFoundException;
+import com.albertsilva.dev.dscatalog.service.exception.DatabaseException;
+import com.albertsilva.dev.dscatalog.service.exception.ResourceNotFoundException;
 
 import jakarta.persistence.EntityNotFoundException;
 
