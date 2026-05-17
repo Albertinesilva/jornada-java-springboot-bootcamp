@@ -103,6 +103,7 @@ public class UserController {
       @ApiResponse(responseCode = "409", description = "Usuário já existente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @PostMapping
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UserResponse> create(@Valid @RequestBody UserCreateRequest userCreateRequest) {
 
     logger.debug("Recebendo requisição para criar usuário: {}", userCreateRequest);
@@ -137,6 +138,7 @@ public class UserController {
       @ApiResponse(responseCode = "403", description = "Usuário sem permissão para acessar este recurso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @GetMapping
+  @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<Page<UserResponse>> findAll(@RequestParam(required = false) String firstName,
       Pageable pageable) {
 
@@ -168,7 +170,7 @@ public class UserController {
       @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @GetMapping(value = "/{id}")
-  @PreAuthorize("hasRole('ADMIN') OR ( hasRole('OPERATOR') AND #id == authentication.principal.id )")
+  @PreAuthorize("hasRole('ADMIN') OR (hasRole('OPERATOR') AND #id == authentication.principal.id)")
   public ResponseEntity<UserDetailsResponse> findById(@PathVariable Long id) {
     logger.debug("Buscando usuário por id: {}", id);
 
@@ -203,7 +205,7 @@ public class UserController {
       @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @PutMapping(value = "/{id}")
-  @PreAuthorize("hasAnyRole('ADMIN', 'CLIENTE') AND (#id == authentication.principal.id)")
+ @PreAuthorize("hasRole('ADMIN')")
   public ResponseEntity<UserResponse> update(@PathVariable Long id,
       @Valid @RequestBody UserUpdateRequest userUpdateRequest) {
 

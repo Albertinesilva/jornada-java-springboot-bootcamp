@@ -129,7 +129,7 @@ public class ProductController {
       @ApiResponse(responseCode = "409", description = "Produto já existente", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @PostMapping
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
   public ResponseEntity<ProductResponse> create(@Valid @RequestBody ProductCreateRequest productCreateRequest) {
     logger.debug("Recebendo requisição para criar produto: {}", productCreateRequest);
 
@@ -206,7 +206,6 @@ public class ProductController {
       @ApiResponse(responseCode = "200", description = "Produto encontrado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProductDetailsResponse.class))),
       @ApiResponse(responseCode = "404", description = "Produto não encontrado", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
-  @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
   @GetMapping(value = "/{id}")
   public ResponseEntity<ProductDetailsResponse> findById(@PathVariable Long id) {
     logger.debug("Buscando produto por id: {}", id);
@@ -358,7 +357,7 @@ public class ProductController {
       @ApiResponse(responseCode = "400", description = "Violação de integridade - existem entidades relacionadas", content = @Content(mediaType = "application/json", schema = @Schema(implementation = ProblemDetails.class)))
   })
   @DeleteMapping(value = "/{id}")
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasRole('ADMIN') or hasRole('OPERATOR')")
   public ResponseEntity<Void> delete(@PathVariable Long id) {
     logger.debug("Deletando produto id={}", id);
 

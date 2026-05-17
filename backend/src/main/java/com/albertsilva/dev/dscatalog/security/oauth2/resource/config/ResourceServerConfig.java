@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -28,6 +29,7 @@ import org.springframework.web.filter.CorsFilter;
 public class ResourceServerConfig {
 
   private static final String[] DOCUMENTATION_OPENAPI = { "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html" };
+  private static final String[] PUBLIC_GET_ENDPOINTS = { "/api/v1/categories/**", "/api/v1/products/**" };
 
   @Value("${cors.origins}")
   private String corsOrigins;
@@ -47,8 +49,14 @@ public class ResourceServerConfig {
   public SecurityFilterChain rsSecurityFilterChain(HttpSecurity http) throws Exception {
     http.csrf(csrf -> csrf.disable());
     http.authorizeHttpRequests(authorize -> authorize
+        // Public endpoints
+        .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS).permitAll()
+
+        // Swagger / OpenAPI
         .requestMatchers(DOCUMENTATION_OPENAPI).permitAll()
-        .anyRequest().permitAll());
+
+        // Any other request
+        .anyRequest().authenticated());
     http.oauth2ResourceServer(oauth2ResourceServer -> oauth2ResourceServer.jwt(Customizer.withDefaults()));
     http.cors(cors -> cors.configurationSource(corsConfigurationSource()));
     return http.build();
