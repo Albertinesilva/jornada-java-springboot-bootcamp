@@ -31,6 +31,7 @@ import com.albertsilva.dev.dscatalog.dto.product.request.ProductCreateRequest;
 import com.albertsilva.dev.dscatalog.dto.product.request.ProductUpdateRequest;
 import com.albertsilva.dev.dscatalog.factory.ProductFactory;
 import com.albertsilva.dev.dscatalog.repository.ProductRepository;
+import com.albertsilva.dev.dscatalog.utils.TokenUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
@@ -50,11 +51,21 @@ class ProductControllerIT {
   @Autowired
   private ProductRepository productRepository;
 
+  @Autowired
+  private TokenUtil tokenUtil;
+
+  private String username;
+  private String password;
+  private String bearerToken;
   private long totalProductsCount;
 
   @BeforeEach
-  void setUp() {
+  void setUp() throws Exception {
     totalProductsCount = productRepository.count();
+
+    username = "maria@gmail.com";
+    password = "123456";
+    bearerToken = tokenUtil.obtainAccessToken(mockMvc, username, password);
   }
 
   @Nested
@@ -150,6 +161,7 @@ class ProductControllerIT {
 
       // Act
       ResultActions resultActions = mockMvc.perform(post(BASE_URL)
+          .header("Authorization", "Bearer " + bearerToken)
           .content(jsonRequest)
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON));
@@ -177,6 +189,7 @@ class ProductControllerIT {
 
       // Act
       ResultActions resultActions = mockMvc.perform(post(BASE_URL)
+          .header("Authorization", "Bearer " + bearerToken)
           .content(jsonRequest)
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON));
@@ -208,6 +221,7 @@ class ProductControllerIT {
 
       // Act
       ResultActions resultActions = mockMvc.perform(patch(BASE_URL + "/{id}", EXISTING_ID)
+          .header("Authorization", "Bearer " + bearerToken)
           .content(jsonRequest)
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON));
@@ -230,6 +244,7 @@ class ProductControllerIT {
 
       // Act
       ResultActions resultActions = mockMvc.perform(patch(BASE_URL + "/{id}", NON_EXISTING_ID)
+          .header("Authorization", "Bearer " + bearerToken)
           .content(jsonRequest)
           .contentType(MediaType.APPLICATION_JSON)
           .accept(MediaType.APPLICATION_JSON));
@@ -251,7 +266,8 @@ class ProductControllerIT {
       long initialCount = productRepository.count();
 
       // Act
-      ResultActions resultActions = mockMvc.perform(delete(BASE_URL + "/{id}", EXISTING_ID));
+      ResultActions resultActions = mockMvc.perform(delete(BASE_URL + "/{id}", EXISTING_ID)
+          .header("Authorization", "Bearer " + bearerToken));
 
       // Assert
       resultActions.andExpect(status().isNoContent());
@@ -265,7 +281,8 @@ class ProductControllerIT {
     void deleteShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
 
       // Act
-      ResultActions resultActions = mockMvc.perform(delete(BASE_URL + "/{id}", NON_EXISTING_ID));
+      ResultActions resultActions = mockMvc.perform(delete(BASE_URL + "/{id}", NON_EXISTING_ID)
+          .header("Authorization", "Bearer " + bearerToken));
 
       // Assert
       resultActions.andExpect(status().isNotFound());
